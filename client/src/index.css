@@ -111,7 +111,6 @@
       radial-gradient(circle at 80% 80%, hsl(25 80% 45% / 0.08) 0%, transparent 40%),
       radial-gradient(circle at 50% 50%, hsl(30 40% 25% / 0.05) 0%, transparent 60%);
     background-size: 400px 400px, 300px 300px, 600px 600px;
-    animation: float-pattern 20s ease-in-out infinite;
   }
   
   .mandala-bg {
@@ -164,7 +163,6 @@
       hsl(190, 60%, 60% / 0.3) 50%, 
       hsl(200, 70%, 70% / 0.2) 75%, 
       transparent 100%);
-    animation: flow 3s ease-in-out infinite;
   }
 }
 
@@ -196,29 +194,6 @@
   100% {
     transform: scale(2.4);
     opacity: 0;
-  }
-}
-
-@keyframes float-pattern {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  33% {
-    transform: translateY(-10px) rotate(2deg);
-  }
-  66% {
-    transform: translateY(5px) rotate(-1deg);
-  }
-}
-
-@keyframes flow {
-  0%, 100% {
-    transform: translateX(-100%);
-    opacity: 0;
-  }
-  50% {
-    transform: translateX(100%);
-    opacity: 1;
   }
 }
 
