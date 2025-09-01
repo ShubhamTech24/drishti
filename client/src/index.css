@@ -1,0 +1,246 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600;700&family=Noto+Serif:wght@400;500;600&family=Noto+Sans+Devanagari:wght@400;500;600&family=Cinzel:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+@import url('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Vintage Spiritual Ujjain Mahakumbh Theme */
+  --background: hsl(39, 25%, 95%); /* Warm temple stone */
+  --foreground: hsl(30, 15%, 15%); /* Deep temple brown */
+  --card: hsl(40, 30%, 92%); /* Ancient parchment */
+  --card-foreground: hsl(30, 15%, 15%);
+  --popover: hsl(40, 30%, 92%);
+  --popover-foreground: hsl(30, 15%, 15%);
+  --primary: hsl(25, 80%, 45%); /* Temple saffron orange */
+  --primary-foreground: hsl(40, 30%, 95%);
+  --secondary: hsl(30, 40%, 25%); /* Sacred brown */
+  --secondary-foreground: hsl(40, 30%, 95%);
+  --muted: hsl(38, 20%, 85%); /* Aged stone */
+  --muted-foreground: hsl(30, 10%, 35%);
+  --accent: hsl(45, 60%, 55%); /* Golden temple ornaments */
+  --accent-foreground: hsl(30, 15%, 15%);
+  --destructive: hsl(0, 65%, 45%); /* Sacred red */
+  --destructive-foreground: hsl(40, 30%, 95%);
+  --success: hsl(120, 40%, 35%); /* Temple green */
+  --success-foreground: hsl(40, 30%, 95%);
+  --border: hsl(35, 20%, 75%); /* Sandstone border */
+  --input: hsl(38, 25%, 88%);
+  --ring: hsl(25, 80%, 45%);
+  --chart-1: hsl(25, 80%, 45%);
+  --chart-2: hsl(120, 40%, 35%);
+  --chart-3: hsl(45, 60%, 55%);
+  --chart-4: hsl(30, 40%, 25%);
+  --chart-5: hsl(0, 65%, 45%);
+  --sidebar: hsl(40, 30%, 92%);
+  --sidebar-foreground: hsl(30, 15%, 15%);
+  --sidebar-primary: hsl(25, 80%, 45%);
+  --sidebar-primary-foreground: hsl(40, 30%, 95%);
+  --sidebar-accent: hsl(45, 60%, 55%);
+  --sidebar-accent-foreground: hsl(30, 15%, 15%);
+  --sidebar-border: hsl(35, 20%, 75%);
+  --sidebar-ring: hsl(25, 80%, 45%);
+  --font-sans: "Noto Sans", system-ui, sans-serif;
+  --font-serif: "Playfair Display", "Noto Serif", Georgia, serif;
+  --font-vintage: "Cinzel", "Playfair Display", serif;
+  --font-devanagari: "Noto Sans Devanagari", sans-serif;
+  --font-mono: Menlo, monospace;
+  --radius: 0.875rem;
+}
+
+.dark {
+  /* Dark spiritual theme for night ceremonies */
+  --background: hsl(30, 35%, 8%); /* Dark temple interior */
+  --foreground: hsl(45, 40%, 85%); /* Warm candlelight */
+  --card: hsl(30, 30%, 12%); /* Dark wood panels */
+  --card-foreground: hsl(45, 40%, 85%);
+  --popover: hsl(30, 30%, 12%);
+  --popover-foreground: hsl(45, 40%, 85%);
+  --primary: hsl(25, 80%, 55%); /* Glowing saffron */
+  --primary-foreground: hsl(30, 35%, 8%);
+  --secondary: hsl(35, 40%, 20%); /* Dark bronze */
+  --secondary-foreground: hsl(45, 40%, 85%);
+  --muted: hsl(30, 25%, 16%); /* Shadow stone */
+  --muted-foreground: hsl(40, 20%, 60%);
+  --accent: hsl(45, 70%, 50%); /* Temple gold glow */
+  --accent-foreground: hsl(30, 35%, 8%);
+  --destructive: hsl(0, 70%, 50%); /* Sacred fire red */
+  --destructive-foreground: hsl(45, 40%, 85%);
+  --success: hsl(120, 45%, 40%); /* Sacred basil green */
+  --success-foreground: hsl(45, 40%, 85%);
+  --border: hsl(35, 25%, 24%); /* Dark carved stone */
+  --input: hsl(30, 25%, 20%);
+  --ring: hsl(25, 80%, 55%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .spiritual-border {
+    @apply border-2 border-solid relative;
+    border-image: linear-gradient(45deg, var(--accent), var(--primary)) 1;
+    border-radius: var(--radius);
+    position: relative;
+  }
+  
+  .spiritual-border::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, var(--accent), var(--primary), var(--accent));
+    border-radius: calc(var(--radius) + 2px);
+    z-index: -1;
+    opacity: 0.3;
+  }
+  
+  .lotus-pattern {
+    background-image: 
+      radial-gradient(circle at 20% 20%, hsl(45 60% 55% / 0.08) 0%, transparent 40%),
+      radial-gradient(circle at 80% 80%, hsl(25 80% 45% / 0.08) 0%, transparent 40%),
+      radial-gradient(circle at 50% 50%, hsl(30 40% 25% / 0.05) 0%, transparent 60%);
+    background-size: 400px 400px, 300px 300px, 600px 600px;
+    animation: float-pattern 20s ease-in-out infinite;
+  }
+  
+  .mandala-bg {
+    background-image: 
+      radial-gradient(circle at 50% 50%, transparent 30%, hsl(25 80% 45% / 0.03) 31%, hsl(25 80% 45% / 0.03) 32%, transparent 33%),
+      radial-gradient(circle at 50% 50%, transparent 40%, hsl(45 60% 55% / 0.02) 41%, hsl(45 60% 55% / 0.02) 42%, transparent 43%);
+    background-size: 200px 200px, 300px 300px;
+  }
+  
+  .temple-texture {
+    background-image: 
+      linear-gradient(90deg, transparent 0%, hsl(35 20% 75% / 0.3) 50%, transparent 100%),
+      repeating-linear-gradient(0deg, transparent, transparent 2px, hsl(30 15% 15% / 0.05) 2px, hsl(30 15% 15% / 0.05) 4px);
+  }
+  
+  .heatmap-legend {
+    background: linear-gradient(to right, 
+      hsl(120, 40%, 35%), 
+      hsl(45, 60%, 55%), 
+      hsl(25, 80%, 45%), 
+      hsl(0, 65%, 45%));
+  }
+  
+  .pulse-ring {
+    animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+  }
+  
+  .om-symbol::before {
+    content: '🕉️';
+    display: inline-block;
+    margin-right: 0.5rem;
+    font-size: 1.2em;
+    opacity: 0.7;
+  }
+  
+  .vintage-card {
+    background: linear-gradient(135deg, 
+      hsl(40, 30%, 92%) 0%, 
+      hsl(38, 25%, 88%) 50%, 
+      hsl(35, 20%, 85%) 100%);
+    box-shadow: 
+      0 4px 8px hsl(30 15% 15% / 0.1),
+      inset 0 1px 0 hsl(45 60% 55% / 0.2);
+  }
+  
+  .ganga-flow {
+    background: linear-gradient(90deg, 
+      transparent 0%, 
+      hsl(200, 70%, 70% / 0.2) 25%, 
+      hsl(190, 60%, 60% / 0.3) 50%, 
+      hsl(200, 70%, 70% / 0.2) 75%, 
+      transparent 100%);
+    animation: flow 3s ease-in-out infinite;
+  }
+}
+
+@layer utilities {
+  .font-devanagari {
+    font-family: var(--font-devanagari);
+  }
+  
+  .font-vintage {
+    font-family: var(--font-vintage);
+  }
+  
+  .text-shadow-golden {
+    text-shadow: 0 1px 2px hsl(45 60% 55% / 0.3);
+  }
+  
+  .vintage-glow {
+    box-shadow: 
+      0 0 10px hsl(45 60% 55% / 0.2),
+      0 0 20px hsl(25 80% 45% / 0.1);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+@keyframes float-pattern {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  33% {
+    transform: translateY(-10px) rotate(2deg);
+  }
+  66% {
+    transform: translateY(5px) rotate(-1deg);
+  }
+}
+
+@keyframes flow {
+  0%, 100% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  50% {
+    transform: translateX(100%);
+    opacity: 1;
+  }
+}
+
+@keyframes sacred-shimmer {
+  0%, 100% {
+    filter: brightness(1) hue-rotate(0deg);
+  }
+  50% {
+    filter: brightness(1.1) hue-rotate(5deg);
+  }
+}
+
+/* Leaflet custom styles for spiritual theme */
+.leaflet-container {
+  @apply rounded-lg;
+}
+
+.leaflet-popup-content-wrapper {
+  @apply bg-card text-card-foreground rounded-lg;
+  border: 2px solid var(--border);
+}
+
+.leaflet-popup-tip {
+  @apply bg-card;
+}
