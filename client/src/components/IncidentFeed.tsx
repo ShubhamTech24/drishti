@@ -5,6 +5,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import type { Event } from "@shared/schema";
+import { Link } from "wouter";
 
 export default function IncidentFeed() {
   const { toast } = useToast();
@@ -74,10 +75,12 @@ export default function IncidentFeed() {
             <i className="fas fa-exclamation-triangle text-primary"></i>
             <span>Live Incidents • घटनाएं</span>
           </h2>
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-muted-foreground">Auto-refresh:</span>
-            <div className="w-3 h-3 bg-success rounded-full pulse-ring"></div>
-          </div>
+          <Link href="/incidents">
+            <Button size="sm" variant="outline" data-testid="button-view-all-incidents">
+              <i className="fas fa-eye mr-2"></i>
+              View All
+            </Button>
+          </Link>
         </div>
         
         <div className="space-y-4 max-h-96 overflow-y-auto" data-testid="incident-feed">

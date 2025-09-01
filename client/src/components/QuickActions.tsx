@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "wouter";
 
 export default function QuickActions() {
   const { toast } = useToast();
@@ -48,15 +49,16 @@ export default function QuickActions() {
         </h2>
         
         <div className="grid grid-cols-2 gap-4">
-          <Button 
-            className="bg-destructive text-destructive-foreground p-4 h-auto flex-col hover:bg-destructive/90" 
-            onClick={handleEmergencyAlert}
-            data-testid="button-emergency-alert"
-          >
-            <i className="fas fa-bullhorn text-2xl mb-2"></i>
-            <div className="text-sm font-bold">Emergency Alert</div>
-            <div className="text-xs opacity-80">Broadcast to all zones</div>
-          </Button>
+          <Link href="/alerts">
+            <Button 
+              className="bg-destructive text-destructive-foreground p-4 h-auto flex-col hover:bg-destructive/90 w-full" 
+              data-testid="button-emergency-alert"
+            >
+              <i className="fas fa-bullhorn text-2xl mb-2"></i>
+              <div className="text-sm font-bold">Emergency Alert</div>
+              <div className="text-xs opacity-80">Broadcast to all zones</div>
+            </Button>
+          </Link>
           
           <Button 
             className="bg-primary text-primary-foreground p-4 h-auto flex-col hover:bg-primary/90"

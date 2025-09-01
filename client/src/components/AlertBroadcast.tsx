@@ -7,6 +7,7 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { Link } from "wouter";
 
 export default function AlertBroadcast() {
   const { toast } = useToast();
@@ -60,10 +61,18 @@ export default function AlertBroadcast() {
   return (
     <Card className="spiritual-border shadow-lg">
       <CardContent className="p-6">
-        <h3 className="text-lg font-bold text-card-foreground mb-4 flex items-center space-x-2">
-          <i className="fas fa-broadcast-tower text-primary"></i>
-          <span>Alert Broadcast</span>
-        </h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-bold text-card-foreground flex items-center space-x-2">
+            <i className="fas fa-broadcast-tower text-primary"></i>
+            <span>Alert Broadcast</span>
+          </h3>
+          <Link href="/alerts">
+            <Button size="sm" variant="outline" data-testid="button-view-all-alerts">
+              <i className="fas fa-eye mr-2"></i>
+              View All
+            </Button>
+          </Link>
+        </div>
         
         <div className="space-y-4">
           <div>

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { Link } from "wouter";
 
 export default function LostAndFound() {
   const { toast } = useToast();
@@ -103,15 +104,24 @@ export default function LostAndFound() {
             )}
           </div>
           
-          <Button 
-            className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90"
-            onClick={handleSearch}
-            disabled={!selectedFile || searchMutation.isPending}
-            data-testid="button-search-matches"
-          >
-            <i className="fas fa-search mr-2"></i>
-            {searchMutation.isPending ? 'Searching...' : 'Search Matches'}
-          </Button>
+          <div className="space-y-2">
+            <Button 
+              className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90"
+              onClick={handleSearch}
+              disabled={!selectedFile || searchMutation.isPending}
+              data-testid="button-search-matches"
+            >
+              <i className="fas fa-search mr-2"></i>
+              {searchMutation.isPending ? 'Searching...' : 'Search Matches'}
+            </Button>
+            
+            <Link href="/lost-and-found">
+              <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90" data-testid="button-view-all-cases">
+                <i className="fas fa-eye mr-2"></i>
+                View All Cases & Reports
+              </Button>
+            </Link>
+          </div>
           
           <div className="bg-muted p-3 rounded-lg">
             <h4 className="text-sm font-semibold text-card-foreground mb-2">Recent Matches</h4>

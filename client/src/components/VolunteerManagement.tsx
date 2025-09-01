@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import type { Volunteer } from "@shared/schema";
+import { Link } from "wouter";
 
 export default function VolunteerManagement() {
   const { data: volunteers = [], isLoading } = useQuery<Volunteer[]>({
@@ -81,13 +82,15 @@ export default function VolunteerManagement() {
           )}
         </div>
         
-        <Button 
-          className="w-full mt-4 bg-secondary text-secondary-foreground hover:bg-secondary/90"
-          data-testid="button-manage-volunteers"
-        >
-          <i className="fas fa-cog mr-2"></i>
-          Manage All Volunteers
-        </Button>
+        <Link href="/volunteers">
+          <Button 
+            className="w-full mt-4 bg-secondary text-secondary-foreground hover:bg-secondary/90"
+            data-testid="button-manage-volunteers"
+          >
+            <i className="fas fa-cog mr-2"></i>
+            Manage All Volunteers
+          </Button>
+        </Link>
       </CardContent>
     </Card>
   );
