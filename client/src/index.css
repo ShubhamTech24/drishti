@@ -219,3 +219,47 @@
 .leaflet-popup-tip {
   @apply bg-card;
 }
+
+/* Enhanced Spiritual Theme Styles */
+.sacred-glow {
+  box-shadow: 0 0 20px rgba(255, 140, 0, 0.3), 0 0 40px rgba(255, 140, 0, 0.2);
+}
+
+.spiritual-gradient {
+  background: linear-gradient(135deg, hsl(25, 80%, 45%) 0%, hsl(45, 60%, 55%) 100%);
+}
+
+.divine-border {
+  border: 2px solid;
+  border-image: linear-gradient(45deg, hsl(25, 80%, 45%), hsl(45, 60%, 55%), hsl(25, 80%, 45%)) 1;
+  border-radius: 0.875rem;
+}
+
+.temple-background {
+  background-image: url('/attached_assets/generated_images/Sacred_river_monitoring_background_dcf11067.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+.mahakumbh-header {
+  background-image: url('/attached_assets/generated_images/Mahakumbh_festival_spiritual_logo_8630bcb7.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  min-height: 80px;
+}
+
+.sacred-card {
+  background: linear-gradient(135deg, rgba(255, 140, 0, 0.05) 0%, rgba(255, 193, 7, 0.05) 100%);
+  border: 1px solid rgba(255, 140, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.1);
+}
+
+.volunteer-badge {
+  background-image: url('/attached_assets/generated_images/Sacred_volunteer_service_icon_c30ae9df.png');
+  background-size: 24px 24px;
+  background-repeat: no-repeat;
+  background-position: left center;
+  padding-left: 32px;
+}

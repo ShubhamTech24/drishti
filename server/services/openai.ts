@@ -159,3 +159,112 @@ export async function normalizeReport(text: string, mediaUrl?: string, lat?: num
     };
   }
 }
+
+export async function compareFaces(uploadedImageBuffer: Buffer, databaseImageUrl: string): Promise<{
+  isMatch: boolean;
+  confidence: number;
+  similarity: number;
+}> {
+  try {
+    // Convert buffer to base64 for OpenAI
+    const base64Image = uploadedImageBuffer.toString('base64');
+    
+    const response = await openai.chat.completions.create({
+      model: "gpt-5",
+      messages: [
+        {
+          role: "system",
+          content: "You are an expert face recognition system. Compare two face images and return EXACTLY a JSON object with isMatch (boolean), confidence (0-1 float), and similarity (0-100 integer percentage). Focus on facial features, bone structure, eyes, nose, mouth shape. Return only valid JSON, no extra text."
+        },
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: "Compare these two face images. Are they the same person? First image is uploaded search photo, second is from database."
+            },
+            {
+              type: "image_url",
+              image_url: { url: `data:image/jpeg;base64,${base64Image}` }
+            },
+            {
+              type: "image_url",
+              image_url: { url: databaseImageUrl }
+            }
+          ]
+        }
+      ],
+      response_format: { type: "json_object" },
+      max_tokens: 200
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || '{}');
+    
+    return {
+      isMatch: result.isMatch || false,
+      confidence: result.confidence || 0.0,
+      similarity: result.similarity || 0
+    };
+  } catch (error) {
+    console.error("Face comparison error:", error);
+    return {
+      isMatch: false,
+      confidence: 0.0,
+      similarity: 0
+    };
+  }
+}
+
+export async function analyzeIncidentFromText(description: string, mediaUrl?: string): Promise<{
+  category: string;
+  severity: string;
+  urgency: string;
+  recommendedResponse: string;
+  estimatedPeople: number;
+}> {
+  try {
+    const messages: any[] = [
+      {
+        role: "system",
+        content: "You are an expert emergency response coordinator for religious gatherings. Analyze incident reports and return EXACTLY a JSON object with category (medical|crowd_control|lost_person|stampede|fire|structural|security), severity (low|medium|high|critical), urgency (low|medium|high|immediate), recommendedResponse (brief action), and estimatedPeople (integer affected). Return only valid JSON."
+      },
+      {
+        role: "user",
+        content: `Incident description: ${description}`
+      }
+    ];
+
+    if (mediaUrl) {
+      messages[1].content = [
+        { type: "text", text: `Incident description: ${description}` },
+        { type: "image_url", image_url: { url: mediaUrl } }
+      ];
+    }
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-5",
+      messages,
+      response_format: { type: "json_object" },
+      max_tokens: 300
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || '{}');
+    
+    return {
+      category: result.category || 'crowd_control',
+      severity: result.severity || 'medium',
+      urgency: result.urgency || 'medium',
+      recommendedResponse: result.recommendedResponse || 'Deploy response team',
+      estimatedPeople: result.estimatedPeople || 1
+    };
+  } catch (error) {
+    console.error("Incident analysis error:", error);
+    return {
+      category: 'crowd_control',
+      severity: 'medium',
+      urgency: 'medium',
+      recommendedResponse: 'Deploy response team',
+      estimatedPeople: 1
+    };
+  }
+}

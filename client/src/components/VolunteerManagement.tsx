@@ -40,7 +40,7 @@ export default function VolunteerManagement() {
   const displayVolunteers = (volunteers && volunteers.length > 0) ? volunteers : mockVolunteers;
 
   return (
-    <Card className="spiritual-border shadow-lg">
+    <Card className="spiritual-border shadow-lg sacred-card sacred-glow">
       <CardContent className="p-6">
         <h3 className="text-lg font-bold text-card-foreground mb-4 flex items-center space-x-2">
           <i className="fas fa-users text-primary"></i>
@@ -61,7 +61,7 @@ export default function VolunteerManagement() {
                 data-testid={`volunteer-card-${volunteer.id}`}
               >
                 <div className="flex items-center space-x-3">
-                  <div className={`w-10 h-10 bg-${getStatusColor(volunteer.status)} rounded-full flex items-center justify-center`}>
+                  <div className={`w-10 h-10 bg-${getStatusColor(volunteer.status)} rounded-full flex items-center justify-center volunteer-badge sacred-glow`}>
                     <i className="fas fa-user text-white"></i>
                   </div>
                   <div>

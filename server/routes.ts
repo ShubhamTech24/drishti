@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { analyzeImageFrame, generateAlertText, transcribeAudio } from "./services/openai";
+import { analyzeImageFrame, generateAlertText, transcribeAudio, compareFaces, analyzeIncidentFromText } from "./services/openai";
 import multer from "multer";
 import { randomUUID } from "crypto";
 
@@ -254,7 +254,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Lost person search
+  // Lost person search with AI face recognition
   app.post('/api/lost-persons/search', isAuthenticated, upload.single('image'), async (req, res) => {
     try {
       const file = req.file;
@@ -263,10 +263,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Missing image file" });
       }
 
-      // In production, generate embedding from image
-      const mockEmbedding = "mock_embedding_vector";
+      // Get all lost persons from database
+      const allLostPersons = await storage.getLostPersons();
+      const matches = [];
       
-      const matches = await storage.searchLostPersons(mockEmbedding);
+      // Compare uploaded image with each lost person photo using AI
+      for (const person of allLostPersons) {
+        if (person.photoUrl) {
+          const comparison = await compareFaces(file.buffer, person.photoUrl);
+          
+          if (comparison.similarity > 60) { // 60% similarity threshold
+            matches.push({
+              id: person.id,
+              name: person.name,
+              age: person.age,
+              lastSeenLocation: person.lastSeenLocation,
+              photoUrl: person.photoUrl,
+              similarity: comparison.similarity,
+              confidence: comparison.confidence,
+              reportedAt: person.reportedAt
+            });
+          }
+        }
+      }
+      
+      // Sort by similarity score (highest first)
+      matches.sort((a, b) => b.similarity - a.similarity);
       
       res.json({ matches });
     } catch (error) {
