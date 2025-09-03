@@ -1,7 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 import type { Source } from "@shared/schema";
 
 interface CameraFeed {
@@ -19,6 +22,11 @@ interface CameraFeed {
 export default function EnhancedCameraFeed() {
   const [selectedFeed, setSelectedFeed] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [demoMode, setDemoMode] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   const { data: sources = [], isLoading } = useQuery<Source[]>({
     queryKey: ['/api/sources'],
@@ -26,6 +34,7 @@ export default function EnhancedCameraFeed() {
   });
 
   // Enhanced mock camera feeds with realistic Mahakumbh data
+  // Enhanced feeds with demo capabilities
   const mockFeeds: CameraFeed[] = [
     {
       id: 'cam001',
@@ -92,8 +101,85 @@ export default function EnhancedCameraFeed() {
       riskLevel: 'medium',
       lastUpdate: new Date(Date.now() - 20000).toISOString(),
       thumbnail: '/attached_assets/generated_images/Sacred_emergency_alert_mandala_28ae0dbf.png'
-    }
+    },
+    // Demo feed placeholders when in demo mode
+    ...(demoMode ? [
+      {
+        id: 'demo001',
+        name: 'DEMO - Uploaded Video Feed',
+        zone: 'Demo Zone',
+        status: 'online' as const,
+        crowdDensity: 'high' as const,
+        peopleCount: 1847,
+        riskLevel: 'medium' as const,
+        lastUpdate: new Date().toISOString(),
+        thumbnail: '/attached_assets/generated_images/Dense_Mahakumbh_crowd_scene_25e9b4b2.png'
+      }
+    ] : [])
   ];
+
+  const handleVideoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+    
+    if (!file.type.startsWith('video/')) {
+      toast({
+        title: "Invalid File",
+        description: "Please upload a video file for demonstration",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    try {
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => {
+          if (prev >= 100) {
+            clearInterval(progressInterval);
+            return 100;
+          }
+          return prev + Math.random() * 15;
+        });
+      }, 200);
+
+      const formData = new FormData();
+      formData.append('video', file);
+      formData.append('demo_type', 'crowd_analysis');
+
+      const response = await fetch('/api/prototype/video', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const result = await response.json();
+      setUploadProgress(100);
+
+      toast({
+        title: "Demo Video Uploaded",
+        description: `${file.name} is now available as a simulated camera feed`,
+      });
+
+    } catch (error) {
+      toast({
+        title: "Upload Failed", 
+        description: "Failed to upload demonstration video",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUploading(false);
+      setTimeout(() => setUploadProgress(0), 1000);
+    }
+  };
 
   const handleAnalyzeFeed = async (feedId: string) => {
     setIsAnalyzing(true);
@@ -146,10 +232,59 @@ export default function EnhancedCameraFeed() {
   return (
     <Card className="spiritual-border shadow-lg sacred-card divine-glow">
       <CardContent className="p-6">
-        <h2 className="text-xl font-bold text-card-foreground mb-6 flex items-center space-x-3 font-vintage text-shadow-golden floating-om">
-          <i className="fas fa-video text-primary divine-glow"></i>
-          <span>Divine Vision Feeds • दिव्य दृश्य</span>
-        </h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-card-foreground flex items-center space-x-3 font-vintage text-shadow-golden floating-om">
+            <i className="fas fa-video text-primary divine-glow"></i>
+            <span>Divine Vision Feeds • दिव्य दृश्य</span>
+          </h2>
+          <div className="flex items-center space-x-3">
+            <Badge 
+              variant={demoMode ? "default" : "outline"} 
+              className="cursor-pointer" 
+              onClick={() => setDemoMode(!demoMode)}
+              data-testid="button-toggle-demo-mode"
+            >
+              {demoMode ? "🎬 Demo Mode" : "📹 Live Mode"}
+            </Badge>
+            {demoMode && (
+              <div className="flex items-center space-x-2">
+                <Input
+                  type="file"
+                  accept="video/*"
+                  ref={fileInputRef}
+                  onChange={handleVideoUpload}
+                  className="hidden"
+                  data-testid="input-demo-video-upload"
+                />
+                <Button
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                  data-testid="button-upload-demo-video"
+                >
+                  <i className="fas fa-upload mr-1"></i>
+                  {isUploading ? 'Uploading...' : 'Add Demo Video'}
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Upload Progress */}
+        {isUploading && uploadProgress > 0 && (
+          <div className="mb-4 p-3 bg-muted rounded-lg">
+            <div className="flex justify-between text-sm mb-2">
+              <span>Uploading demonstration video...</span>
+              <span>{Math.round(uploadProgress)}%</span>
+            </div>
+            <div className="w-full bg-background rounded-full h-2">
+              <div 
+                className="bg-primary h-2 rounded-full transition-all duration-300"
+                style={{ width: `${uploadProgress}%` }}
+              ></div>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
           {mockFeeds.map((feed) => (

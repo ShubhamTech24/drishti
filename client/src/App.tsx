@@ -5,7 +5,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import Dashboard from "@/pages/dashboard";
-import PrototypeDemo from "@/pages/prototype-demo";
 import Landing from "@/pages/landing";
 import NotFound from "@/pages/not-found";
 import VolunteersPage from "@/pages/volunteers";
@@ -23,7 +22,6 @@ function Router() {
       ) : (
         <>
           <Route path="/" component={Dashboard} />
-          <Route path="/prototype-demo" component={PrototypeDemo} />
           <Route path="/volunteers" component={VolunteersPage} />
           <Route path="/lost-and-found" component={LostAndFoundPage} />
           <Route path="/incidents" component={IncidentsPage} />
