@@ -85,34 +85,26 @@ export default function LiveCrowdMap() {
   }, [isMapLoaded]);
 
   return (
-    <Card className="spiritual-border shadow-lg">
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-card-foreground flex items-center space-x-3">
+    <Card className="neo-card overflow-hidden h-full">
+      <CardContent className="p-0 h-full relative">
+        {/* Map Header Overlay */}
+        <div className="control-overlay top-4 left-4 p-4">
+          <h3 className="font-bold text-card-foreground mb-2 flex items-center space-x-2">
             <i className="fas fa-map text-primary"></i>
-            <span>Live Crowd Density • भीड़ घनत्व</span>
-          </h2>
-          <div className="flex items-center space-x-4">
-            <div className="text-sm text-muted-foreground">
-              Total Pilgrims: <span className="font-bold text-primary" data-testid="text-total-pilgrims">
-                {stats?.totalAttendees?.toLocaleString() || '1,247,832'}
-              </span>
-            </div>
-            <Button 
-              variant="outline" 
-              size="sm"
-              data-testid="button-fullscreen-map"
-            >
-              <i className="fas fa-expand-arrows-alt mr-2"></i>Fullscreen
-            </Button>
+            <span>Live Crowd Density</span>
+          </h3>
+          <div className="text-xs text-muted-foreground">
+            Total: <span className="font-bold text-primary">
+              {stats?.totalAttendees?.toLocaleString() || '3,247,832'}
+            </span>
           </div>
         </div>
         
         {/* Map Container */}
-        <div className="relative">
+        <div className="absolute inset-0">
           <div 
             ref={mapRef}
-            className="h-96 rounded-lg border-2 border-border overflow-hidden"
+            className="w-full h-full"
             data-testid="map-container"
           >
             {!isMapLoaded && (
@@ -126,8 +118,8 @@ export default function LiveCrowdMap() {
           </div>
           
           {/* Heatmap Legend */}
-          <div className="absolute bottom-4 left-4 bg-card/90 backdrop-blur rounded-lg p-3 border border-border">
-            <h4 className="text-sm font-semibold mb-2 text-card-foreground">Crowd Density</h4>
+          <div className="control-overlay bottom-4 left-4 p-3">
+            <h4 className="text-sm font-semibold mb-2 text-card-foreground">Density Scale</h4>
             <div className="space-y-1">
               <div className="flex items-center space-x-2">
                 <div className="w-4 h-4 bg-success rounded"></div>
@@ -149,8 +141,8 @@ export default function LiveCrowdMap() {
           </div>
 
           {/* Zone Stats Overlay */}
-          <div className="absolute top-4 right-4 bg-card/90 backdrop-blur rounded-lg p-3 border border-border">
-            <h4 className="text-sm font-semibold mb-2 text-card-foreground">Active Zones</h4>
+          <div className="control-overlay top-4 right-4 p-3">
+            <h4 className="text-sm font-semibold mb-2 text-card-foreground">Live Zones</h4>
             <div className="space-y-1 text-xs">
               {zones.map((zone, index) => (
                 <div key={index} className="flex justify-between">

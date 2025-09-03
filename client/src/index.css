@@ -308,3 +308,104 @@
     transform: translateY(-5px);
   }
 }
+
+/* Sophisticated Glass Morphism Dashboard */
+.glass-panel {
+  background: linear-gradient(135deg, rgba(255, 140, 0, 0.1), rgba(255, 193, 7, 0.05));
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 140, 0, 0.2);
+  box-shadow: 0 16px 64px rgba(0, 0, 0, 0.1), 0 4px 24px rgba(255, 140, 0, 0.15);
+}
+
+.neo-card {
+  background: linear-gradient(145deg, 
+    rgba(255, 255, 255, 0.1), 
+    rgba(255, 255, 255, 0.05));
+  backdrop-filter: blur(30px);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-glass {
+  background: linear-gradient(180deg, 
+    rgba(255, 140, 0, 0.95) 0%, 
+    rgba(255, 100, 0, 0.98) 100%);
+  backdrop-filter: blur(20px);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  grid-template-rows: 1fr;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.content-area {
+  overflow-y: auto;
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(135deg, 
+    rgba(255, 140, 0, 0.02) 0%,
+    rgba(255, 193, 7, 0.01) 25%,
+    rgba(139, 69, 19, 0.01) 50%,
+    rgba(255, 140, 0, 0.005) 75%,
+    rgba(255, 193, 7, 0.02) 100%);
+}
+
+.map-container-fixed {
+  position: relative;
+  z-index: 10;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  height: 400px;
+}
+
+.control-overlay {
+  position: absolute;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 140, 0, 0.2);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.panel-slide-in {
+  animation: slideInFromLeft 0.5s ease-out;
+}
+
+@keyframes slideInFromLeft {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.nav-item {
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateX(4px);
+  box-shadow: 0 4px 16px rgba(255, 140, 0, 0.2);
+}
+
+.nav-item.active {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 24px rgba(255, 140, 0, 0.3);
+}
