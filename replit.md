@@ -47,10 +47,13 @@ Preferred communication style: Simple, everyday language.
 - **Client State Sync**: Automatic UI updates for incidents, alerts, and system status changes
 
 ### AI & Computer Vision Integration
-- **AI Provider**: OpenAI GPT-5 for image analysis and natural language processing
-- **Image Analysis**: Automated crowd density analysis, behavior detection, and risk assessment
-- **Multilingual Content**: AI-powered translation and localization for emergency alerts
-- **Audio Processing**: Transcription capabilities for audio-based incident reporting
+- **Primary AI Provider**: OpenAI GPT-5 for advanced image analysis and natural language processing
+- **Local Python AI Services**: Custom computer vision models using OpenCV, scikit-learn, and NumPy for real-time crowd analysis
+- **Hybrid AI Architecture**: Seamless switching between cloud-based OpenAI services and local Python processing
+- **Image Analysis**: Automated crowd density analysis, face detection, behavior pattern recognition, and risk assessment
+- **Multilingual Content**: AI-powered translation and localization for emergency alerts in Hindi, English, Marathi, and Sanskrit
+- **Audio Processing**: Python-based transcription capabilities for audio-based incident reporting
+- **Face Recognition**: Local Python services for lost person identification and matching
 
 ### File Storage & Media Handling
 - **Image Processing**: In-memory buffer processing with Multer
@@ -58,10 +61,13 @@ Preferred communication style: Simple, everyday language.
 - **Frame Analysis Pipeline**: Automated processing of camera feeds for crowd analysis
 
 ### Development & Deployment
+- **Multi-Language Runtime**: Node.js 20 for backend services and Python 3.11 for AI/ML processing
 - **Development Server**: Vite development server with HMR and middleware integration
-- **Build Process**: Separate client (Vite) and server (esbuild) build pipelines
-- **Environment Configuration**: Environment-based configuration for database, AI services, and authentication
+- **Build Process**: Separate client (Vite) and server (esbuild) build pipelines with Python AI service integration
+- **Environment Configuration**: Environment-based configuration for database, AI services, Python processes, and authentication
+- **Python Integration**: FastAPI-based Python services for computer vision and ML tasks
 - **Static Asset Serving**: Production-ready static file serving with Express
+- **AI Service Architecture**: Dual-mode AI processing (cloud OpenAI + local Python services)
 
 ## External Dependencies
 
@@ -70,8 +76,12 @@ Preferred communication style: Simple, everyday language.
 - **Database Driver**: @neondatabase/serverless for optimized serverless connections
 
 ### AI & Machine Learning
-- **OpenAI API**: GPT-5 model for image analysis, content generation, and multilingual processing
-- **Computer Vision**: Image analysis for crowd density estimation and behavior detection
+- **OpenAI API**: GPT-5 model for advanced image analysis, content generation, and multilingual processing
+- **Python AI Stack**: OpenCV, NumPy, scikit-learn, Pillow, and SciPy for local computer vision processing
+- **Computer Vision**: Multi-modal image analysis combining cloud AI and local Python models
+- **Face Recognition**: Python-based facial feature extraction and similarity matching for lost person identification
+- **Crowd Analysis**: Real-time density estimation, movement pattern detection, and risk assessment using Python CV libraries
+- **Audio Processing**: Python-based audio transcription and natural language processing for incident reports
 
 ### Authentication Services
 - **Replit OIDC**: OpenID Connect provider for user authentication
