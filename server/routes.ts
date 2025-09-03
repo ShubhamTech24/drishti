@@ -39,6 +39,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Prototype video upload endpoint
+  app.post('/api/prototype/video', upload.single('video'), async (req, res) => {
+    try {
+      const { demo_type } = req.body;
+      const file = req.file;
+
+      if (!file) {
+        return res.status(400).json({ message: "Missing video file" });
+      }
+
+      // Simulate video processing for prototype demo
+      const videoId = randomUUID();
+      const processedResult = {
+        video_id: videoId,
+        filename: file.originalname,
+        size: file.size,
+        demo_type: demo_type || 'crowd_analysis',
+        processing_status: 'completed',
+        ai_analysis: {
+          frames_processed: 180,
+          avg_crowd_density: demo_type === 'crowd' ? 'high' : 'medium',
+          people_detected: demo_type === 'crowd' ? 247 : 85,
+          incidents_found: demo_type === 'emergency' ? 2 : 0,
+          faces_analyzed: demo_type === 'lost_person' ? 45 : 12
+        },
+        simulated_camera_id: `CAM-DEMO-${Date.now()}`
+      };
+
+      res.json(processedResult);
+    } catch (error) {
+      console.error("Prototype video upload error:", error);
+      res.status(500).json({ message: "Video processing failed" });
+    }
+  });
+
   // Frame upload endpoint
   app.post('/api/frames/upload', upload.single('file'), async (req, res) => {
     try {
