@@ -4,6 +4,7 @@ import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { analyzeImageFrame, generateAlertText, transcribeAudio, compareFaces, analyzeIncidentFromText } from "./services/openai";
+import { analyzeCrowdWithPython, transcribeAudioWithPython } from "./services/pythonAI";
 import multer from "multer";
 import { randomUUID } from "crypto";
 
@@ -62,8 +63,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         fpsEstimate: "1.0"
       });
 
-      // Analyze frame with OpenAI
-      const analysis = await analyzeImageFrame(s3Url, frameId);
+      // Analyze frame with AI (can switch between OpenAI and Python)
+      const useLocalAI = process.env.USE_LOCAL_AI === 'true';
+      const analysis = useLocalAI 
+        ? await analyzeCrowdWithPython(file.buffer)
+        : await analyzeImageFrame(s3Url, frameId);
       
       // Create analysis record
       const analysisRecord = await storage.createAnalysis({
