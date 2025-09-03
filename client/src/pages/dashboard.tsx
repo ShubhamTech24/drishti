@@ -5,9 +5,9 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 import { Button } from "@/components/ui/button";
 import LiveCrowdMap from "@/components/LiveCrowdMap";
 import IncidentFeed from "@/components/IncidentFeed";
-import CameraFeedGrid from "@/components/CameraFeedGrid";
+import EnhancedCameraFeed from "@/components/EnhancedCameraFeed";
 import SystemHealth from "@/components/SystemHealth";
-import QuickActions from "@/components/QuickActions";
+import QuickActionsEnhanced from "@/components/QuickActionsEnhanced";
 import AlertBroadcast from "@/components/AlertBroadcast";
 import LostAndFound from "@/components/LostAndFound";
 import VolunteerManagement from "@/components/VolunteerManagement";
@@ -125,13 +125,13 @@ export default function Dashboard() {
           {/* Left Panel: Live Map & Camera Feeds */}
           <div className="xl:col-span-2 space-y-6">
             <LiveCrowdMap />
-            <CameraFeedGrid />
+            <EnhancedCameraFeed />
           </div>
 
           {/* Right Panel: Incidents & Controls */}
           <div className="space-y-6">
             <IncidentFeed />
-            <QuickActions />
+            <QuickActionsEnhanced />
           </div>
         </div>
 

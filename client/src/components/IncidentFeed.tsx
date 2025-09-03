@@ -68,11 +68,11 @@ export default function IncidentFeed() {
   };
 
   return (
-    <Card className="spiritual-border shadow-lg">
+    <Card className="spiritual-border shadow-lg sacred-card divine-glow">
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-card-foreground flex items-center space-x-3">
-            <i className="fas fa-exclamation-triangle text-primary"></i>
+          <h2 className="text-xl font-bold text-card-foreground flex items-center space-x-3 font-vintage text-shadow-golden floating-om">
+            <i className="fas fa-exclamation-triangle text-primary divine-glow"></i>
             <span>Live Incidents • घटनाएं</span>
           </h2>
           <Link href="/incidents">

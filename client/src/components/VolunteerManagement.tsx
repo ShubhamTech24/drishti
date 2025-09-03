@@ -42,8 +42,8 @@ export default function VolunteerManagement() {
   return (
     <Card className="spiritual-border shadow-lg sacred-card sacred-glow">
       <CardContent className="p-6">
-        <h3 className="text-lg font-bold text-card-foreground mb-4 flex items-center space-x-2">
-          <i className="fas fa-users text-primary"></i>
+        <h3 className="text-lg font-bold text-card-foreground mb-4 flex items-center space-x-2 font-vintage text-shadow-golden floating-om">
+          <i className="fas fa-users text-primary divine-glow"></i>
           <span>Volunteer Status • स्वयंसेवक स्थिति</span>
         </h3>
         

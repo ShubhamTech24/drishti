@@ -236,7 +236,9 @@
 }
 
 .temple-background {
-  background-image: url('/attached_assets/generated_images/Sacred_river_monitoring_background_dcf11067.png');
+  background-image: 
+    linear-gradient(rgba(255, 140, 0, 0.1), rgba(255, 193, 7, 0.05)),
+    url('/attached_assets/generated_images/Mahakumbh_devotee_families_scene_12a2eed8.png');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -262,4 +264,47 @@
   background-repeat: no-repeat;
   background-position: left center;
   padding-left: 32px;
+}
+
+.sacred-ui-elements {
+  background-image: url('/attached_assets/generated_images/Sacred_dashboard_UI_elements_9a8809f0.png');
+  background-size: 32px 32px;
+  background-repeat: no-repeat;
+  background-position: right top;
+}
+
+.divine-glow {
+  animation: divine-pulse 3s ease-in-out infinite;
+}
+
+@keyframes divine-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(255, 140, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(255, 140, 0, 0.6), 0 0 40px rgba(255, 193, 7, 0.3);
+  }
+}
+
+.floating-om {
+  position: relative;
+}
+
+.floating-om::before {
+  content: '🕉️';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  font-size: 16px;
+  opacity: 0.7;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
 }

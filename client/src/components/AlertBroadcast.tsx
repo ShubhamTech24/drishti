@@ -59,11 +59,11 @@ export default function AlertBroadcast() {
   });
 
   return (
-    <Card className="spiritual-border shadow-lg">
+    <Card className="spiritual-border shadow-lg sacred-card divine-glow">
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-card-foreground flex items-center space-x-2">
-            <i className="fas fa-broadcast-tower text-primary"></i>
+          <h3 className="text-lg font-bold text-card-foreground flex items-center space-x-2 font-vintage text-shadow-golden floating-om">
+            <i className="fas fa-broadcast-tower text-primary divine-glow"></i>
             <span>Alert Broadcast</span>
           </h3>
           <Link href="/alerts">
