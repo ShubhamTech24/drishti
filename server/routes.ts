@@ -385,24 +385,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Two-step person search: Upload search media, then target person
   app.post('/api/lost-persons/two-step-search', isAuthenticated, upload.fields([{ name: 'searchMedia', maxCount: 1 }, { name: 'targetPerson', maxCount: 1 }]), async (req, res) => {
+    console.log('Two-step search request received');
     try {
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      console.log('Files received:', Object.keys(files || {}));
       
       if (!files.searchMedia || !files.targetPerson) {
+        console.log('Missing files - searchMedia:', !!files.searchMedia, 'targetPerson:', !!files.targetPerson);
         return res.status(400).json({ message: 'Both search media and target person image are required' });
       }
 
       const searchMediaFile = files.searchMedia[0];
       const targetPersonFile = files.targetPerson[0];
       
+      console.log('Processing files:', {
+        searchMedia: { name: searchMediaFile.originalname, type: searchMediaFile.mimetype, size: searchMediaFile.size },
+        targetPerson: { name: targetPersonFile.originalname, type: targetPersonFile.mimetype, size: targetPersonFile.size }
+      });
+      
       // Convert files to base64 data URLs
       const searchMediaUrl = `data:${searchMediaFile.mimetype};base64,${searchMediaFile.buffer.toString('base64')}`;
       const targetPersonUrl = `data:${targetPersonFile.mimetype};base64,${targetPersonFile.buffer.toString('base64')}`;
       
       const mediaType = searchMediaFile.mimetype.startsWith('video/') ? 'video' : 'image';
+      console.log('Media type determined:', mediaType);
       
       // Use AI to search for target person in the search media
+      console.log('Starting AI search...');
       const searchResult = await searchPersonInMedia(searchMediaUrl, targetPersonUrl, mediaType);
+      console.log('AI search completed:', { found: searchResult.found, confidence: searchResult.confidence });
       
       res.json({
         searchResult,
@@ -412,7 +423,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error('Error in two-step person search:', error);
-      res.status(500).json({ message: 'Failed to perform two-step search' });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      res.status(500).json({ 
+        message: 'Failed to perform two-step search',
+        error: errorMessage,
+        details: process.env.NODE_ENV === 'development' ? String(error) : undefined
+      });
     }
   });
 

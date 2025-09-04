@@ -44,7 +44,8 @@ export default function LostAndFound() {
           : "Person not found in the uploaded media.",
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      console.error('Search error:', error);
       if (isUnauthorizedError(error)) {
         toast({
           title: "Unauthorized",
@@ -56,9 +57,18 @@ export default function LostAndFound() {
         }, 500);
         return;
       }
+      
+      // Extract detailed error message
+      let errorMessage = "Unable to perform search. Please try again.";
+      if (error?.message) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+      
       toast({
         title: "Search Failed",
-        description: "Unable to perform search. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     },

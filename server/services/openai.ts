@@ -407,7 +407,11 @@ export async function searchPersonInMedia(searchMediaUrl: string, targetPersonUr
       max_completion_tokens: 800
     });
 
-    const targetFeatures = JSON.parse(targetAnalysis.choices[0].message.content || '{}');
+    const targetContent = targetAnalysis.choices[0]?.message?.content;
+    if (!targetContent) {
+      throw new Error('No target analysis content received from AI');
+    }
+    const targetFeatures = JSON.parse(targetContent);
 
     // Step 2: Search for people in the search media
     const searchAnalysis = await openai.chat.completions.create({
@@ -438,7 +442,11 @@ export async function searchPersonInMedia(searchMediaUrl: string, targetPersonUr
       max_completion_tokens: 1000
     });
 
-    const searchResults = JSON.parse(searchAnalysis.choices[0].message.content || '{}');
+    const searchContent = searchAnalysis.choices[0]?.message?.content;
+    if (!searchContent) {
+      throw new Error('No search analysis content received from AI');
+    }
+    const searchResults = JSON.parse(searchContent);
 
     // Step 3: Perform detailed comparison between target and found people
     const comparisonAnalysis = await openai.chat.completions.create({
@@ -491,7 +499,11 @@ Be thorough but realistic - consider lighting, angles, and image quality differe
       max_completion_tokens: 1200
     });
 
-    const comparison = JSON.parse(comparisonAnalysis.choices[0].message.content || '{}');
+    const comparisonContent = comparisonAnalysis.choices[0]?.message?.content;
+    if (!comparisonContent) {
+      throw new Error('No comparison analysis content received from AI');
+    }
+    const comparison = JSON.parse(comparisonContent);
     
     return {
       found: comparison.found || false,
@@ -507,12 +519,13 @@ Be thorough but realistic - consider lighting, angles, and image quality differe
     };
   } catch (error) {
     console.error("Enhanced person search error:", error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return {
       found: false,
       confidence: 0,
       location: '',
-      description: 'Enhanced search analysis failed - trying simpler approach',
-      matchDetails: { error: error.message }
+      description: `Enhanced search analysis failed: ${errorMessage}`,
+      matchDetails: { error: errorMessage, fullError: String(error) }
     };
   }
 }
