@@ -11,6 +11,7 @@ import VolunteersPage from "@/pages/volunteers";
 import LostAndFoundPage from "@/pages/lost-and-found";
 import IncidentsPage from "@/pages/incidents";
 import AlertsPage from "@/pages/alerts";
+import { DivineVisionPage } from "@/pages/divine-vision";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -26,6 +27,7 @@ function Router() {
           <Route path="/lost-and-found" component={LostAndFoundPage} />
           <Route path="/incidents" component={IncidentsPage} />
           <Route path="/alerts" component={AlertsPage} />
+          <Route path="/divine-vision" component={DivineVisionPage} />
         </>
       )}
       <Route component={NotFound} />

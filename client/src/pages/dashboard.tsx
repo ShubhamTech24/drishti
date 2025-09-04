@@ -73,6 +73,28 @@ export default function Dashboard() {
             </div>
             
             <div className="flex items-center space-x-6">
+              {/* Navigation Menu */}
+              <nav className="hidden md:flex items-center space-x-4">
+                <a href="/" className="text-sm px-3 py-2 rounded hover:bg-primary-foreground hover:text-primary transition-colors">
+                  Dashboard
+                </a>
+                <a href="/divine-vision" className="text-sm px-3 py-2 rounded hover:bg-primary-foreground hover:text-primary transition-colors">
+                  Divine Vision
+                </a>
+                <a href="/lost-and-found" className="text-sm px-3 py-2 rounded hover:bg-primary-foreground hover:text-primary transition-colors">
+                  Lost & Found
+                </a>
+                <a href="/volunteers" className="text-sm px-3 py-2 rounded hover:bg-primary-foreground hover:text-primary transition-colors">
+                  Volunteers
+                </a>
+                <a href="/incidents" className="text-sm px-3 py-2 rounded hover:bg-primary-foreground hover:text-primary transition-colors">
+                  Incidents
+                </a>
+                <a href="/alerts" className="text-sm px-3 py-2 rounded hover:bg-primary-foreground hover:text-primary transition-colors">
+                  Alerts
+                </a>
+              </nav>
+
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">
                   <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-success pulse-ring' : 'bg-destructive'}`}></div>

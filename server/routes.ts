@@ -4,7 +4,7 @@ import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { analyzeImageFrame, generateAlertText, transcribeAudio, compareFaces, analyzeIncidentFromText, findMatchingPerson, analyzeSearchMedia, searchPersonInMedia } from "./services/openai";
-import { analyzeCrowdWithPython, transcribeAudioWithPython } from "./services/pythonAI";
+import { analyzeCrowdWithPython, transcribeAudioWithPython, processVideoFeed, analyzeFrameForPersonCounting } from "./services/pythonAI";
 import multer from "multer";
 import { randomUUID } from "crypto";
 
@@ -463,6 +463,112 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json(demoResult);
     }
+  });
+
+  // Divine Vision Feed API Routes
+
+  // Store for active monitoring state
+  let monitoringState = {
+    isActive: false,
+    locations: ['ram_ghat', 'mahakal_temple', 'triveni', 'parking'],
+    lastUpdate: Date.now()
+  };
+
+  // Get all location feeds
+  app.get('/api/divine-vision/feeds', async (req, res) => {
+    try {
+      if (!monitoringState.isActive) {
+        return res.json([]);
+      }
+
+      const feedPromises = monitoringState.locations.map(async (location) => {
+        const result = await processVideoFeed(location, 'demo');
+        return result;
+      });
+
+      const feedResults = await Promise.all(feedPromises);
+      res.json(feedResults);
+    } catch (error) {
+      console.error('Error fetching feeds:', error);
+      res.status(500).json({ error: 'Failed to fetch feed data' });
+    }
+  });
+
+  // Start monitoring
+  app.post('/api/divine-vision/start', async (req, res) => {
+    try {
+      monitoringState.isActive = true;
+      monitoringState.lastUpdate = Date.now();
+      
+      console.log('Divine Vision monitoring started');
+      res.json({ message: 'Monitoring started', active: true });
+    } catch (error) {
+      console.error('Error starting monitoring:', error);
+      res.status(500).json({ error: 'Failed to start monitoring' });
+    }
+  });
+
+  // Stop monitoring
+  app.post('/api/divine-vision/stop', async (req, res) => {
+    try {
+      monitoringState.isActive = false;
+      
+      console.log('Divine Vision monitoring stopped');
+      res.json({ message: 'Monitoring stopped', active: false });
+    } catch (error) {
+      console.error('Error stopping monitoring:', error);
+      res.status(500).json({ error: 'Failed to stop monitoring' });
+    }
+  });
+
+  // Process specific feed
+  app.post('/api/divine-vision/process-feed', async (req, res) => {
+    try {
+      const { location } = req.body;
+      
+      if (!location) {
+        return res.status(400).json({ error: 'Location is required' });
+      }
+
+      console.log(`Processing feed for location: ${location}`);
+      const result = await processVideoFeed(location, 'demo');
+      
+      res.json(result);
+    } catch (error) {
+      console.error('Error processing feed:', error);
+      res.status(500).json({ error: 'Failed to process feed' });
+    }
+  });
+
+  // Analyze frame from uploaded image
+  app.post('/api/divine-vision/analyze-frame', upload.single('frame'), async (req, res) => {
+    try {
+      const { location = 'ram_ghat' } = req.body;
+      
+      if (!req.file) {
+        return res.status(400).json({ error: 'No frame uploaded' });
+      }
+
+      // Convert uploaded file to base64
+      const frameData = req.file.buffer.toString('base64');
+      
+      console.log(`Analyzing frame for location: ${location}`);
+      const result = await analyzeFrameForPersonCounting(frameData, location);
+      
+      res.json(result);
+    } catch (error) {
+      console.error('Error analyzing frame:', error);
+      res.status(500).json({ error: 'Failed to analyze frame' });
+    }
+  });
+
+  // Get monitoring status
+  app.get('/api/divine-vision/status', (req, res) => {
+    res.json({
+      active: monitoringState.isActive,
+      locations: monitoringState.locations,
+      lastUpdate: monitoringState.lastUpdate
+    });
   });
 
   const httpServer = createServer(app);
