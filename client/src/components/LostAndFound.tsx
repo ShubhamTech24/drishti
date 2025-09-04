@@ -209,7 +209,7 @@ export default function LostAndFound() {
                   data-testid="button-start-search"
                 >
                   <i className="fas fa-search mr-2"></i>
-                  {twoStepSearchMutation.isPending ? 'Searching...' : 'Start AI Search'}
+                  {twoStepSearchMutation.isPending ? 'AI Analyzing...' : 'Start Enhanced AI Search'}
                 </Button>
               </div>
             </div>
@@ -246,12 +246,40 @@ export default function LostAndFound() {
                       </p>
                     </div>
                     
-                    {searchResult.searchResult.matchDetails && Object.keys(searchResult.searchResult.matchDetails).length > 0 && (
-                      <div className="bg-white dark:bg-gray-800 p-3 rounded border">
-                        <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Match Details:</p>
-                        <pre className="text-xs text-gray-600 dark:text-gray-400 whitespace-pre-wrap">
-                          {JSON.stringify(searchResult.searchResult.matchDetails, null, 2)}
-                        </pre>
+                    {searchResult.searchResult.matchDetails && (
+                      <div className="bg-white dark:bg-gray-800 p-3 rounded border space-y-2">
+                        <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">
+                          🔍 Enhanced AI Analysis ({searchResult.searchResult.matchDetails.analysisSteps || 1} steps)
+                        </p>
+                        
+                        {searchResult.searchResult.matchDetails.targetFeatures && (
+                          <div className="text-xs">
+                            <p className="font-medium text-blue-600 dark:text-blue-400">Target Person Features:</p>
+                            <p className="text-gray-600 dark:text-gray-400 ml-2">
+                              {JSON.stringify(searchResult.searchResult.matchDetails.targetFeatures).slice(0, 200)}...
+                            </p>
+                          </div>
+                        )}
+                        
+                        {searchResult.searchResult.matchDetails.detectedPeople && (
+                          <div className="text-xs">
+                            <p className="font-medium text-green-600 dark:text-green-400">
+                              People Detected: {searchResult.searchResult.matchDetails.detectedPeople.people?.length || 'Unknown'}
+                            </p>
+                            <p className="text-gray-600 dark:text-gray-400 ml-2">
+                              {JSON.stringify(searchResult.searchResult.matchDetails.detectedPeople).slice(0, 200)}...
+                            </p>
+                          </div>
+                        )}
+                        
+                        {searchResult.searchResult.matchDetails.comparison && (
+                          <div className="text-xs">
+                            <p className="font-medium text-purple-600 dark:text-purple-400">Final Comparison:</p>
+                            <p className="text-gray-600 dark:text-gray-400 ml-2">
+                              {JSON.stringify(searchResult.searchResult.matchDetails.comparison).slice(0, 200)}...
+                            </p>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
