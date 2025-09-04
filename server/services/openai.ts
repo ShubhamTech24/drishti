@@ -96,7 +96,7 @@ export async function generateAlertText(zone: string, alertType: string): Promis
         }
       ],
       response_format: { type: "json_object" },
-      max_tokens: 300
+      max_completion_tokens: 300
     });
 
     const result = JSON.parse(response.choices[0].message.content || '{}');
@@ -246,7 +246,7 @@ export async function analyzeIncidentFromText(description: string, mediaUrl?: st
       model: "gpt-5",
       messages,
       response_format: { type: "json_object" },
-      max_tokens: 300
+      max_completion_tokens: 300
     });
 
     const result = JSON.parse(response.choices[0].message.content || '{}');
@@ -266,6 +266,105 @@ export async function analyzeIncidentFromText(description: string, mediaUrl?: st
       urgency: 'medium',
       recommendedResponse: 'Deploy response team',
       estimatedPeople: 1
+    };
+  }
+}
+
+// AI-powered face matching for lost person search
+export async function findMatchingPerson(searchImageUrl: string, lostPersonData: any[]): Promise<{
+  matches: any[];
+  confidence: number;
+}> {
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+      messages: [
+        {
+          role: "system",
+          content: "You are an expert in facial recognition and person identification. Analyze the provided search image and compare it with lost person records. Look for facial features, clothing, age, gender, and any distinctive characteristics. Return a JSON object with potential matches and confidence scores."
+        },
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: `Analyze this image to find potential matches with missing persons. Here are the registered lost persons: ${JSON.stringify(lostPersonData, null, 2)}. Return matches with confidence scores and reasoning.`
+            },
+            {
+              type: "image_url",
+              image_url: {
+                url: searchImageUrl
+              }
+            }
+          ]
+        }
+      ],
+      response_format: { type: "json_object" },
+      max_completion_tokens: 800
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || '{}');
+    
+    return {
+      matches: result.matches || [],
+      confidence: result.overall_confidence || 0
+    };
+  } catch (error) {
+    console.error("Face matching error:", error);
+    return {
+      matches: [],
+      confidence: 0
+    };
+  }
+}
+
+// Analyze uploaded image/video for person detection
+export async function analyzeSearchMedia(mediaUrl: string, mediaType: 'image' | 'video'): Promise<{
+  detectedPersons: any[];
+  description: string;
+  extractedFeatures: string[];
+}> {
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+      messages: [
+        {
+          role: "system",
+          content: `You are analyzing ${mediaType} content to help find missing persons. Extract detailed information about people visible in the ${mediaType}. Focus on physical characteristics, clothing, age estimates, and any unique identifiers. Return JSON with detected persons array and description.`
+        },
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: `Analyze this ${mediaType} for person detection. Extract all visible people with detailed descriptions including physical features, clothing, estimated age, gender, and any distinguishing characteristics.`
+            },
+            {
+              type: "image_url",
+              image_url: {
+                url: mediaUrl
+              }
+            }
+          ]
+        }
+      ],
+      response_format: { type: "json_object" },
+      max_completion_tokens: 1000
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || '{}');
+    
+    return {
+      detectedPersons: result.detected_persons || [],
+      description: result.description || '',
+      extractedFeatures: result.extracted_features || []
+    };
+  } catch (error) {
+    console.error("Media analysis error:", error);
+    return {
+      detectedPersons: [],
+      description: 'Analysis failed',
+      extractedFeatures: []
     };
   }
 }

@@ -63,6 +63,7 @@ export interface IStorage {
   
   // Lost person operations
   createLostPerson(lostPerson: InsertLostPerson): Promise<LostPerson>;
+  getLostPersons(): Promise<LostPerson[]>;
   searchLostPersons(embedding: string): Promise<LostPerson[]>;
   
   // Analytics
@@ -206,6 +207,11 @@ export class DatabaseStorage implements IStorage {
   async createLostPerson(lostPerson: InsertLostPerson): Promise<LostPerson> {
     const [newLostPerson] = await db.insert(lostPersons).values(lostPerson).returning();
     return newLostPerson;
+  }
+
+  async getLostPersons(): Promise<LostPerson[]> {
+    return await db.select().from(lostPersons)
+      .orderBy(desc(lostPersons.createdAt));
   }
 
   async searchLostPersons(embedding: string): Promise<LostPerson[]> {

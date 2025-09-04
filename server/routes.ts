@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { analyzeImageFrame, generateAlertText, transcribeAudio, compareFaces, analyzeIncidentFromText } from "./services/openai";
+import { analyzeImageFrame, generateAlertText, transcribeAudio, compareFaces, analyzeIncidentFromText, findMatchingPerson, analyzeSearchMedia } from "./services/openai";
 import { analyzeCrowdWithPython, transcribeAudioWithPython } from "./services/pythonAI";
 import multer from "multer";
 import { randomUUID } from "crypto";
@@ -304,35 +304,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get all lost persons from database
       const allLostPersons = await storage.getLostPersons();
-      const matches = [];
       
-      // Compare uploaded image with each lost person photo using AI
+      // Convert uploaded file to base64 data URL for AI analysis
+      const imageBase64 = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+      
+      // Use enhanced AI to find matching persons
+      const matchResult = await findMatchingPerson(imageBase64, allLostPersons);
+      
+      // Also analyze the uploaded image for person details
+      const mediaAnalysis = await analyzeSearchMedia(imageBase64, 'image');
+      
+      // Legacy face comparison for additional verification
+      const legacyMatches = [];
       for (const person of allLostPersons) {
         if (person.photoUrl) {
-          const comparison = await compareFaces(file.buffer, person.photoUrl);
-          
-          if (comparison.similarity > 60) { // 60% similarity threshold
-            matches.push({
-              id: person.id,
-              name: person.name,
-              age: person.age,
-              lastSeenLocation: person.lastSeenLocation,
-              photoUrl: person.photoUrl,
-              similarity: comparison.similarity,
-              confidence: comparison.confidence,
-              reportedAt: person.reportedAt
-            });
+          try {
+            const comparison = await compareFaces(file.buffer, person.photoUrl);
+            if (comparison.similarity > 60) {
+              legacyMatches.push({
+                id: person.id,
+                name: person.name,
+                age: person.age,
+                lastSeenLocation: person.lastSeenLocation,
+                photoUrl: person.photoUrl,
+                similarity: comparison.similarity,
+                confidence: comparison.confidence,
+                reportedAt: person.reportedAt
+              });
+            }
+          } catch (e) {
+            console.warn('Legacy face comparison failed for person:', person.id);
           }
         }
       }
       
-      // Sort by similarity score (highest first)
-      matches.sort((a, b) => b.similarity - a.similarity);
+      // Sort legacy matches by similarity score (highest first)
+      legacyMatches.sort((a, b) => b.similarity - a.similarity);
       
-      res.json({ matches });
+      res.json({ 
+        aiMatches: matchResult.matches,
+        aiConfidence: matchResult.confidence,
+        legacyMatches,
+        detectedPersons: mediaAnalysis.detectedPersons,
+        description: mediaAnalysis.description,
+        extractedFeatures: mediaAnalysis.extractedFeatures,
+        totalRegistered: allLostPersons.length
+      });
     } catch (error) {
       console.error("Error searching lost persons:", error);
       res.status(500).json({ message: "Failed to search lost persons" });
+    }
+  });
+
+  // Video analysis for lost person search
+  app.post('/api/lost-persons/search-video', isAuthenticated, upload.single('video'), async (req, res) => {
+    try {
+      const file = req.file;
+      if (!file) {
+        return res.status(400).json({ message: 'Video file required for search' });
+      }
+
+      // For video, we analyze it for person detection
+      const videoBase64 = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+      
+      const allLostPersons = await storage.getLostPersons();
+      const mediaAnalysis = await analyzeSearchMedia(videoBase64, 'video');
+      
+      res.json({ 
+        detectedPersons: mediaAnalysis.detectedPersons,
+        description: mediaAnalysis.description,
+        extractedFeatures: mediaAnalysis.extractedFeatures,
+        totalRegistered: allLostPersons.length,
+        message: 'Video analysis completed - detected persons listed above'
+      });
+    } catch (error) {
+      console.error('Error analyzing video:', error);
+      res.status(500).json({ message: 'Failed to analyze video' });
     }
   });
 
