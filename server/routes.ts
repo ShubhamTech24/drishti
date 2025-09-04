@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { analyzeImageFrame, generateAlertText, transcribeAudio, compareFaces, analyzeIncidentFromText, findMatchingPerson, analyzeSearchMedia } from "./services/openai";
+import { analyzeImageFrame, generateAlertText, transcribeAudio, compareFaces, analyzeIncidentFromText, findMatchingPerson, analyzeSearchMedia, searchPersonInMedia } from "./services/openai";
 import { analyzeCrowdWithPython, transcribeAudioWithPython } from "./services/pythonAI";
 import multer from "multer";
 import { randomUUID } from "crypto";
@@ -380,6 +380,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error analyzing video:', error);
       res.status(500).json({ message: 'Failed to analyze video' });
+    }
+  });
+
+  // Two-step person search: Upload search media, then target person
+  app.post('/api/lost-persons/two-step-search', isAuthenticated, upload.fields([{ name: 'searchMedia', maxCount: 1 }, { name: 'targetPerson', maxCount: 1 }]), async (req, res) => {
+    try {
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      
+      if (!files.searchMedia || !files.targetPerson) {
+        return res.status(400).json({ message: 'Both search media and target person image are required' });
+      }
+
+      const searchMediaFile = files.searchMedia[0];
+      const targetPersonFile = files.targetPerson[0];
+      
+      // Convert files to base64 data URLs
+      const searchMediaUrl = `data:${searchMediaFile.mimetype};base64,${searchMediaFile.buffer.toString('base64')}`;
+      const targetPersonUrl = `data:${targetPersonFile.mimetype};base64,${targetPersonFile.buffer.toString('base64')}`;
+      
+      const mediaType = searchMediaFile.mimetype.startsWith('video/') ? 'video' : 'image';
+      
+      // Use AI to search for target person in the search media
+      const searchResult = await searchPersonInMedia(searchMediaUrl, targetPersonUrl, mediaType);
+      
+      res.json({
+        searchResult,
+        searchMediaType: mediaType,
+        searchMediaName: searchMediaFile.originalname,
+        targetPersonName: targetPersonFile.originalname
+      });
+    } catch (error) {
+      console.error('Error in two-step person search:', error);
+      res.status(500).json({ message: 'Failed to perform two-step search' });
     }
   });
 

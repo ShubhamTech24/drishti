@@ -368,3 +368,68 @@ export async function analyzeSearchMedia(mediaUrl: string, mediaType: 'image' | 
     };
   }
 }
+
+// Two-step search: Compare target person image with uploaded search media
+export async function searchPersonInMedia(searchMediaUrl: string, targetPersonUrl: string, mediaType: 'image' | 'video'): Promise<{
+  found: boolean;
+  confidence: number;
+  location: string;
+  description: string;
+  matchDetails: any;
+}> {
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert in person identification and search. Compare the target person with people in the search ${mediaType}. Look for facial features, clothing, posture, and any distinctive characteristics. Return JSON with detailed analysis of whether the person is found and where.`
+        },
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: `Search for the target person in this ${mediaType}. First analyze the target person image, then search for them in the search ${mediaType}. Return JSON with: found (boolean), confidence (0-100), location (description of where in image/video), description (detailed explanation), and matchDetails (specific matching features).`
+            },
+            {
+              type: "image_url",
+              image_url: {
+                url: targetPersonUrl,
+                detail: "high"
+              }
+            },
+            {
+              type: "image_url", 
+              image_url: {
+                url: searchMediaUrl,
+                detail: "high"
+              }
+            }
+          ]
+        }
+      ],
+      response_format: { type: "json_object" },
+      max_completion_tokens: 1200
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || '{}');
+    
+    return {
+      found: result.found || false,
+      confidence: result.confidence || 0,
+      location: result.location || '',
+      description: result.description || '',
+      matchDetails: result.matchDetails || {}
+    };
+  } catch (error) {
+    console.error("Person search in media error:", error);
+    return {
+      found: false,
+      confidence: 0,
+      location: '',
+      description: 'Search analysis failed',
+      matchDetails: {}
+    };
+  }
+}
