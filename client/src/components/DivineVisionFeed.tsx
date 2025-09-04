@@ -61,7 +61,8 @@ export function DivineVisionFeed() {
   const { data: feedData, isLoading } = useQuery({
     queryKey: ['/api/divine-vision/feeds'],
     enabled: isMonitoring,
-    refetchInterval: 3000, // Update every 3 seconds
+    refetchInterval: 2000, // Update every 2 seconds for faster response
+    staleTime: 1000, // Consider data stale after 1 second
   });
 
   // Start/stop monitoring
@@ -95,6 +96,27 @@ export function DivineVisionFeed() {
 
   const handleProcessFeed = (location: string) => {
     processFeedMutation.mutate(location);
+  };
+
+  // Video upload functionality
+  const videoUploadMutation = useMutation({
+    mutationFn: async ({ file, location }: { file: File; location: string }) => {
+      const formData = new FormData();
+      formData.append('frame', file);
+      formData.append('location', location);
+      
+      return apiRequest('/api/divine-vision/analyze-frame', {
+        method: 'POST',
+        body: formData,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/divine-vision/feeds'] });
+    },
+  });
+
+  const handleVideoUpload = (file: File, location: string) => {
+    videoUploadMutation.mutate({ file, location });
   };
 
   return (
@@ -226,14 +248,26 @@ export function DivineVisionFeed() {
                 >
                   {processFeedMutation.isPending ? 'Processing...' : 'Analyze Current Frame'}
                 </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  disabled
-                  data-testid="button-upload-video"
-                >
-                  Upload Video
-                </Button>
+                <label className="cursor-pointer">
+                  <input
+                    type="file"
+                    accept="video/*,image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        handleVideoUpload(file, selectedLocation);
+                      }
+                    }}
+                  />
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    data-testid="button-upload-video"
+                  >
+                    Upload Video/Image
+                  </Button>
+                </label>
               </div>
             </CardContent>
           </Card>
