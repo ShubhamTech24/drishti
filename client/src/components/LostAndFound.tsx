@@ -23,17 +23,26 @@ export default function LostAndFound() {
       formData.append('searchMedia', searchMedia);
       formData.append('targetPerson', targetPerson);
 
-      const response = await fetch('/api/lost-persons/two-step-search', {
-        method: 'POST',
-        body: formData,
-        credentials: 'include'
-      });
+      try {
+        const response = await fetch('/api/lost-persons/two-step-search', {
+          method: 'POST',
+          body: formData,
+          credentials: 'include'
+        });
 
-      if (!response.ok) {
-        throw new Error(`${response.status}: ${response.statusText}`);
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        return response.json();
+      } catch (error) {
+        console.error('Fetch error:', error);
+        if (error instanceof TypeError && error.message.includes('fetch')) {
+          throw new Error('Network connection failed. Please check your internet connection.');
+        }
+        throw error;
       }
-
-      return response.json();
     },
     onSuccess: (data) => {
       setSearchResult(data);

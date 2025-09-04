@@ -369,7 +369,7 @@ export async function analyzeSearchMedia(mediaUrl: string, mediaType: 'image' | 
   }
 }
 
-// Enhanced multi-step AI person search with improved accuracy
+// Reliable single-step AI person search for demo
 export async function searchPersonInMedia(searchMediaUrl: string, targetPersonUrl: string, mediaType: 'image' | 'video'): Promise<{
   found: boolean;
   confidence: number;
@@ -378,105 +378,45 @@ export async function searchPersonInMedia(searchMediaUrl: string, targetPersonUr
   matchDetails: any;
 }> {
   try {
-    // Step 1: Analyze target person features in detail
-    const targetAnalysis = await openai.chat.completions.create({
+    console.log('Starting simplified AI person search...');
+    
+    // Single comprehensive analysis for reliability
+    const response = await openai.chat.completions.create({
       model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
       messages: [
         {
           role: "system",
-          content: "You are an expert facial recognition analyst. Analyze the target person's features in extreme detail for identification purposes."
+          content: "You are an expert person identification system. Compare the target person with people in the search media. Be thorough but straightforward. Always return valid JSON."
         },
         {
           role: "user",
           content: [
             {
               type: "text",
-              text: "Analyze this target person image in detail. Extract: facial features (eyes, nose, mouth, jawline), hair (color, style, length), clothing (colors, patterns, style), body build, skin tone, age estimate, any distinctive marks, accessories, and overall appearance. Return detailed JSON analysis."
-            },
-            {
-              type: "image_url",
-              image_url: {
-                url: targetPersonUrl,
-                detail: "high"
-              }
-            }
-          ]
-        }
-      ],
-      response_format: { type: "json_object" },
-      max_completion_tokens: 800
-    });
+              text: `Compare these two images:
+1. TARGET PERSON (first image): The person we are looking for
+2. SEARCH MEDIA (second image): The ${mediaType} where we want to find the target person
 
-    const targetContent = targetAnalysis.choices[0]?.message?.content;
-    if (!targetContent) {
-      throw new Error('No target analysis content received from AI');
-    }
-    const targetFeatures = JSON.parse(targetContent);
+TASK: Look carefully at the search ${mediaType} and determine if the target person appears in it.
 
-    // Step 2: Search for people in the search media
-    const searchAnalysis = await openai.chat.completions.create({
-      model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-      messages: [
-        {
-          role: "system",
-          content: `You are an expert person detector and analyzer. Carefully examine this ${mediaType} and identify ALL people present, analyzing their detailed features.`
-        },
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: `Examine this ${mediaType} carefully and identify ALL people visible. For each person found, provide: location in image, facial features, clothing, body build, age estimate, and distinctive characteristics. Look thoroughly - even people who are partially visible, in background, or at different angles. Return JSON with array of all detected people.`
-            },
-            {
-              type: "image_url",
-              image_url: {
-                url: searchMediaUrl,
-                detail: "high"
-              }
-            }
-          ]
-        }
-      ],
-      response_format: { type: "json_object" },
-      max_completion_tokens: 1000
-    });
+Compare:
+- Facial features (eyes, nose, mouth, face shape)
+- Hair color and style
+- Clothing and accessories
+- Body build and posture
+- Skin tone
+- Age appearance
 
-    const searchContent = searchAnalysis.choices[0]?.message?.content;
-    if (!searchContent) {
-      throw new Error('No search analysis content received from AI');
-    }
-    const searchResults = JSON.parse(searchContent);
+Return JSON with:
+{
+  "found": boolean,
+  "confidence": number (0-100),
+  "location": "description of where person is in image",
+  "description": "detailed explanation of findings",
+  "reasoning": "step by step comparison"
+}
 
-    // Step 3: Perform detailed comparison between target and found people
-    const comparisonAnalysis = await openai.chat.completions.create({
-      model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-      messages: [
-        {
-          role: "system",
-          content: "You are an expert in facial recognition and person identification. Compare the target person's features with each detected person to find matches."
-        },
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: `Compare these two images carefully:
-
-TARGET PERSON FEATURES: ${JSON.stringify(targetFeatures)}
-
-DETECTED PEOPLE IN SEARCH MEDIA: ${JSON.stringify(searchResults)}
-
-Now compare each detected person with the target person. Look for matches in:
-1. Facial structure (eyes, nose, mouth, jawline, face shape)
-2. Hair characteristics 
-3. Clothing similarities
-4. Body build and posture
-5. Skin tone and complexion
-6. Age compatibility
-7. Any distinctive features
-
-Be thorough but realistic - consider lighting, angles, and image quality differences. Return JSON with: found (boolean), confidence (0-100), bestMatch (description of which person matches), location (where in image), description (detailed reasoning), and matchDetails (specific matching features).`
+Be realistic about matches - consider different angles, lighting, and image quality.`
             },
             {
               type: "image_url",
@@ -496,36 +436,52 @@ Be thorough but realistic - consider lighting, angles, and image quality differe
         }
       ],
       response_format: { type: "json_object" },
-      max_completion_tokens: 1200
+      max_completion_tokens: 800,
+      temperature: 0.1 // Lower temperature for more consistent results
     });
 
-    const comparisonContent = comparisonAnalysis.choices[0]?.message?.content;
-    if (!comparisonContent) {
-      throw new Error('No comparison analysis content received from AI');
+    const content = response.choices[0]?.message?.content;
+    if (!content) {
+      throw new Error('No response content received from AI');
     }
-    const comparison = JSON.parse(comparisonContent);
+
+    console.log('AI response received, parsing...');
+    const result = JSON.parse(content);
+    
+    // Ensure we have required fields
+    const found = result.found === true;
+    const confidence = Math.min(100, Math.max(0, Number(result.confidence) || 0));
+    const location = result.location || 'Location not specified';
+    const description = result.description || 'Analysis completed';
+    
+    console.log('Search completed:', { found, confidence });
     
     return {
-      found: comparison.found || false,
-      confidence: Math.min(100, Math.max(0, comparison.confidence || 0)),
-      location: comparison.location || comparison.bestMatch || '',
-      description: comparison.description || 'Analysis completed',
+      found,
+      confidence,
+      location,
+      description,
       matchDetails: {
-        targetFeatures,
-        detectedPeople: searchResults,
-        comparison: comparison.matchDetails || {},
-        analysisSteps: 3
+        reasoning: result.reasoning || 'No detailed reasoning provided',
+        analysisSteps: 1,
+        simplified: true
       }
     };
   } catch (error) {
-    console.error("Enhanced person search error:", error);
+    console.error("AI person search error:", error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    
+    // Return a fallback response to ensure demo continues working
     return {
       found: false,
       confidence: 0,
-      location: '',
-      description: `Enhanced search analysis failed: ${errorMessage}`,
-      matchDetails: { error: errorMessage, fullError: String(error) }
+      location: 'Search could not be completed',
+      description: `Search failed: ${errorMessage}. Please try with different images or check your internet connection.`,
+      matchDetails: { 
+        error: errorMessage, 
+        fallback: true,
+        simplified: true
+      }
     };
   }
 }
