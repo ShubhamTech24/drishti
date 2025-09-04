@@ -23,9 +23,6 @@ import {
   type InsertEvent,
   type InsertVolunteer,
   type InsertLostPerson,
-  mediaStorage,
-  type MediaStorage,
-  type InsertMediaStorage,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gte, sql } from "drizzle-orm";
@@ -68,12 +65,6 @@ export interface IStorage {
   createLostPerson(lostPerson: InsertLostPerson): Promise<LostPerson>;
   getLostPersons(): Promise<LostPerson[]>;
   searchLostPersons(embedding: string): Promise<LostPerson[]>;
-  
-  // Media storage operations
-  saveMediaToDatabase(media: InsertMediaStorage): Promise<MediaStorage>;
-  getAllStoredMedia(): Promise<MediaStorage[]>;
-  getStoredMediaById(id: string): Promise<MediaStorage | undefined>;
-  searchStoredMediaByType(mediaType: string): Promise<MediaStorage[]>;
   
   // Analytics
   getCrowdStats(): Promise<{
@@ -230,29 +221,6 @@ export class DatabaseStorage implements IStorage {
       .where(eq(lostPersons.status, "missing"))
       .orderBy(desc(lostPersons.createdAt))
       .limit(10);
-  }
-
-  // Media storage operations
-  async saveMediaToDatabase(media: InsertMediaStorage): Promise<MediaStorage> {
-    const [newMedia] = await db.insert(mediaStorage).values(media).returning();
-    return newMedia;
-  }
-
-  async getAllStoredMedia(): Promise<MediaStorage[]> {
-    return await db.select().from(mediaStorage)
-      .orderBy(desc(mediaStorage.uploadedAt));
-  }
-
-  async getStoredMediaById(id: string): Promise<MediaStorage | undefined> {
-    const [media] = await db.select().from(mediaStorage)
-      .where(eq(mediaStorage.id, id));
-    return media || undefined;
-  }
-
-  async searchStoredMediaByType(mediaType: string): Promise<MediaStorage[]> {
-    return await db.select().from(mediaStorage)
-      .where(eq(mediaStorage.mediaType, mediaType))
-      .orderBy(desc(mediaStorage.uploadedAt));
   }
 
   // Analytics
