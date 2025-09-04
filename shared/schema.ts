@@ -135,6 +135,19 @@ export const lostPersons = pgTable("lost_persons", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const mediaStorage = pgTable("media_storage", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  filename: text("filename").notNull(),
+  mediaType: text("media_type").notNull(), // 'image' or 'video'
+  mimeType: text("mime_type").notNull(),
+  size: integer("size").notNull(),
+  data: text("data").notNull(), // base64 encoded media
+  analysisData: text("analysis_data"), // JSON string of AI analysis
+  detectedPersons: text("detected_persons"), // JSON array of detected persons
+  uploadedAt: timestamp("uploaded_at").defaultNow(),
+  source: text("source").default("upload"), // 'upload', 'camera_feed', etc.
+});
+
 // Insert schemas
 export const insertSourceSchema = createInsertSchema(sources).omit({ id: true, createdAt: true });
 export const insertFrameSchema = createInsertSchema(frames).omit({ id: true, tsUtc: true });
@@ -143,6 +156,7 @@ export const insertReportSchema = createInsertSchema(reports).omit({ id: true, c
 export const insertEventSchema = createInsertSchema(events).omit({ id: true, createdAt: true });
 export const insertVolunteerSchema = createInsertSchema(volunteers).omit({ id: true, lastSeen: true });
 export const insertLostPersonSchema = createInsertSchema(lostPersons).omit({ id: true, createdAt: true });
+export const insertMediaStorageSchema = createInsertSchema(mediaStorage).omit({ id: true, uploadedAt: true });
 
 // Types
 export type UpsertUser = typeof users.$inferInsert;
@@ -154,6 +168,8 @@ export type Report = typeof reports.$inferSelect;
 export type Event = typeof events.$inferSelect;
 export type Volunteer = typeof volunteers.$inferSelect;
 export type LostPerson = typeof lostPersons.$inferSelect;
+export type MediaStorage = typeof mediaStorage.$inferSelect;
+export type InsertMediaStorage = typeof insertMediaStorageSchema._type;
 
 export type InsertSource = z.infer<typeof insertSourceSchema>;
 export type InsertFrame = z.infer<typeof insertFrameSchema>;

@@ -10,6 +10,7 @@ import SystemHealth from "@/components/SystemHealth";
 import QuickActionsEnhanced from "@/components/QuickActionsEnhanced";
 import AlertBroadcast from "@/components/AlertBroadcast";
 import LostAndFound from "@/components/LostAndFound";
+import DatabaseSearch from "@/components/DatabaseSearch";
 import VolunteerManagement from "@/components/VolunteerManagement";
 import RecentReports from "@/components/RecentReports";
 import { useWebSocket } from "@/hooks/useWebSocket";
@@ -139,7 +140,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <SystemHealth />
           <AlertBroadcast />
-          <LostAndFound />
+          <DatabaseSearch />
           <div className="space-y-6">
             <VolunteerManagement />
             <RecentReports />
