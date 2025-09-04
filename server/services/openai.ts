@@ -436,8 +436,7 @@ Be realistic about matches - consider different angles, lighting, and image qual
         }
       ],
       response_format: { type: "json_object" },
-      max_completion_tokens: 800,
-      temperature: 0.1 // Lower temperature for more consistent results
+      max_completion_tokens: 800
     });
 
     const content = response.choices[0]?.message?.content;
