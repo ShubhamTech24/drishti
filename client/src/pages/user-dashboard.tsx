@@ -42,11 +42,13 @@ export default function UserDashboard() {
   // Submit help request
   const helpRequestMutation = useMutation({
     mutationFn: async (data: typeof helpForm) => {
-      return apiRequest('/api/help-requests', {
+      const response = await fetch('/api/help-requests', {
         method: 'POST',
         body: JSON.stringify(data),
         headers: { 'Content-Type': 'application/json' }
       });
+      if (!response.ok) throw new Error('Failed to submit help request');
+      return response.json();
     },
     onSuccess: () => {
       toast({
@@ -148,9 +150,9 @@ export default function UserDashboard() {
             <CardContent>
               {notificationsLoading ? (
                 <div className="text-center py-4">Loading notifications...</div>
-              ) : notifications?.length > 0 ? (
+              ) : (notifications as Notification[])?.length > 0 ? (
                 <div className="space-y-4 max-h-96 overflow-y-auto">
-                  {notifications.map((notification: Notification) => (
+                  {(notifications as Notification[]).map((notification: Notification) => (
                     <Alert key={notification.id} data-testid={`notification-${notification.id}`}>
                       <div className="flex items-start gap-3">
                         <div className="text-xl">

@@ -10,8 +10,8 @@ import LostAndFoundPage from "@/pages/lost-and-found";
 import IncidentsPage from "@/pages/incidents";
 import AlertsPage from "@/pages/alerts";
 import { DivineVisionPage } from "@/pages/divine-vision";
-import UserDashboard from "@/pages/user-dashboard";
-import AdminDashboard from "@/pages/admin-dashboard";
+import UserDashboard from "./pages/user-dashboard";
+import AdminDashboard from "./pages/admin-dashboard";
 
 function Router() {
   return (
