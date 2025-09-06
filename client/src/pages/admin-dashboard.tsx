@@ -188,6 +188,13 @@ export default function AdminDashboard() {
               <Link href="/">
                 <Button variant="outline" data-testid="link-main">Main Dashboard</Button>
               </Link>
+              <Button 
+                variant="destructive" 
+                onClick={() => window.location.href = '/api/logout'}
+                data-testid="button-logout"
+              >
+                Logout
+              </Button>
             </div>
           </div>
         </div>
