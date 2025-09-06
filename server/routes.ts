@@ -90,15 +90,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/help-requests', isAuthenticated, async (req: any, res) => {
     try {
       const user = req.user;
-      const dbUser = await storage.getUser(user.claims.sub);
       
-      if (dbUser?.role === 'admin') {
+      if (user.role === 'admin') {
         // Admins see all help requests
         const helpRequests = await storage.getHelpRequests();
         res.json(helpRequests);
       } else {
         // Users see only their own help requests
-        const helpRequests = await storage.getHelpRequestsByUser(user.claims.sub);
+        const helpRequests = await storage.getHelpRequestsByUser(user.id);
         res.json(helpRequests);
       }
     } catch (error) {
@@ -112,7 +111,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = req.user;
       const helpRequestData = {
         ...req.body,
-        userId: user.claims.sub // Link to authenticated user
+        userId: user.id // Link to authenticated user
       };
       
       const helpRequest = await storage.createHelpRequest(helpRequestData);
@@ -171,7 +170,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/messages', isAuthenticated, async (req: any, res) => {
     try {
       const user = req.user;
-      const messages = await storage.getMessages(user.claims.sub);
+      const messages = await storage.getMessages(user.id);
       res.json(messages);
     } catch (error) {
       console.error("Error fetching messages:", error);
@@ -184,7 +183,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = req.user;
       const messageData = {
         ...req.body,
-        fromUserId: user.claims.sub
+        fromUserId: user.id
       };
       
       const message = await storage.createMessage(messageData);
@@ -212,7 +211,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/messages/unread-count', isAuthenticated, async (req: any, res) => {
     try {
       const user = req.user;
-      const count = await storage.getUnreadMessageCount(user.claims.sub);
+      const count = await storage.getUnreadMessageCount(user.id);
       res.json({ count });
     } catch (error) {
       console.error("Error fetching unread message count:", error);
