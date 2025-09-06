@@ -132,13 +132,203 @@ export default function GuestDashboard() {
         </div>
 
         {/* Main Dashboard Tabs */}
-        <Tabs defaultValue="alerts" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+        <Tabs defaultValue="live-feeds" className="w-full">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="live-feeds">Live Camera Feeds</TabsTrigger>
             <TabsTrigger value="alerts">Emergency Alerts</TabsTrigger>
             <TabsTrigger value="crowd">Crowd Analysis</TabsTrigger>
             <TabsTrigger value="safety">Safety Info</TabsTrigger>
             <TabsTrigger value="services">Services</TabsTrigger>
           </TabsList>
+          
+          <TabsContent value="live-feeds" className="space-y-4 mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Eye className="h-5 w-5 mr-2 text-blue-600" />
+                  Live Camera Feeds - Mahakumbh 2028
+                </CardTitle>
+                <CardDescription>
+                  Real-time surveillance feeds from key areas across the festival grounds
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  
+                  {/* Ram Ghat Camera */}
+                  <div className="space-y-2">
+                    <div className="relative bg-gray-900 rounded-lg overflow-hidden aspect-video">
+                      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-900 to-blue-700">
+                        <div className="text-center text-white">
+                          <Eye className="h-8 w-8 mx-auto mb-2 animate-pulse" />
+                          <p className="text-sm font-medium">RAM GHAT LIVE</p>
+                          <p className="text-xs opacity-75">Main Bathing Area</p>
+                        </div>
+                      </div>
+                      <div className="absolute top-2 left-2">
+                        <Badge className="bg-red-600 text-white animate-pulse">🔴 LIVE</Badge>
+                      </div>
+                      <div className="absolute bottom-2 right-2">
+                        <Badge variant="secondary" className="bg-green-100 text-green-800">Normal</Badge>
+                      </div>
+                    </div>
+                    <h4 className="font-medium text-center">Ram Ghat - Main Bathing Area</h4>
+                  </div>
+                  
+                  {/* Hanuman Ghat Camera */}
+                  <div className="space-y-2">
+                    <div className="relative bg-gray-900 rounded-lg overflow-hidden aspect-video">
+                      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-orange-900 to-orange-700">
+                        <div className="text-center text-white">
+                          <Eye className="h-8 w-8 mx-auto mb-2 animate-pulse" />
+                          <p className="text-sm font-medium">HANUMAN GHAT LIVE</p>
+                          <p className="text-xs opacity-75">Secondary Bathing Area</p>
+                        </div>
+                      </div>
+                      <div className="absolute top-2 left-2">
+                        <Badge className="bg-red-600 text-white animate-pulse">🔴 LIVE</Badge>
+                      </div>
+                      <div className="absolute bottom-2 right-2">
+                        <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Moderate</Badge>
+                      </div>
+                    </div>
+                    <h4 className="font-medium text-center">Hanuman Ghat - Bathing Area</h4>
+                  </div>
+                  
+                  {/* Main Entrance Camera */}
+                  <div className="space-y-2">
+                    <div className="relative bg-gray-900 rounded-lg overflow-hidden aspect-video">
+                      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-purple-900 to-purple-700">
+                        <div className="text-center text-white">
+                          <Eye className="h-8 w-8 mx-auto mb-2 animate-pulse" />
+                          <p className="text-sm font-medium">MAIN ENTRANCE LIVE</p>
+                          <p className="text-xs opacity-75">Gate 1 & 2</p>
+                        </div>
+                      </div>
+                      <div className="absolute top-2 left-2">
+                        <Badge className="bg-red-600 text-white animate-pulse">🔴 LIVE</Badge>
+                      </div>
+                      <div className="absolute bottom-2 right-2">
+                        <Badge variant="secondary" className="bg-orange-100 text-orange-800">High</Badge>
+                      </div>
+                    </div>
+                    <h4 className="font-medium text-center">Main Entrance - Gates 1 & 2</h4>
+                  </div>
+                  
+                  {/* Food Court Camera */}
+                  <div className="space-y-2">
+                    <div className="relative bg-gray-900 rounded-lg overflow-hidden aspect-video">
+                      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-green-900 to-green-700">
+                        <div className="text-center text-white">
+                          <Eye className="h-8 w-8 mx-auto mb-2 animate-pulse" />
+                          <p className="text-sm font-medium">FOOD COURT LIVE</p>
+                          <p className="text-xs opacity-75">Dining Area</p>
+                        </div>
+                      </div>
+                      <div className="absolute top-2 left-2">
+                        <Badge className="bg-red-600 text-white animate-pulse">🔴 LIVE</Badge>
+                      </div>
+                      <div className="absolute bottom-2 right-2">
+                        <Badge variant="secondary" className="bg-green-100 text-green-800">Normal</Badge>
+                      </div>
+                    </div>
+                    <h4 className="font-medium text-center">Food Court - Dining Area</h4>
+                  </div>
+                  
+                  {/* Parking Area Camera */}
+                  <div className="space-y-2">
+                    <div className="relative bg-gray-900 rounded-lg overflow-hidden aspect-video">
+                      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-700">
+                        <div className="text-center text-white">
+                          <Eye className="h-8 w-8 mx-auto mb-2 animate-pulse" />
+                          <p className="text-sm font-medium">PARKING AREA LIVE</p>
+                          <p className="text-xs opacity-75">Zones A-C</p>
+                        </div>
+                      </div>
+                      <div className="absolute top-2 left-2">
+                        <Badge className="bg-red-600 text-white animate-pulse">🔴 LIVE</Badge>
+                      </div>
+                      <div className="absolute bottom-2 right-2">
+                        <Badge variant="secondary" className="bg-green-100 text-green-800">Normal</Badge>
+                      </div>
+                    </div>
+                    <h4 className="font-medium text-center">Parking Area - Zones A-C</h4>
+                  </div>
+                  
+                  {/* Medical Center Camera */}
+                  <div className="space-y-2">
+                    <div className="relative bg-gray-900 rounded-lg overflow-hidden aspect-video">
+                      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-red-900 to-red-700">
+                        <div className="text-center text-white">
+                          <Eye className="h-8 w-8 mx-auto mb-2 animate-pulse" />
+                          <p className="text-sm font-medium">MEDICAL CENTER LIVE</p>
+                          <p className="text-xs opacity-75">Emergency Services</p>
+                        </div>
+                      </div>
+                      <div className="absolute top-2 left-2">
+                        <Badge className="bg-red-600 text-white animate-pulse">🔴 LIVE</Badge>
+                      </div>
+                      <div className="absolute bottom-2 right-2">
+                        <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Moderate</Badge>
+                      </div>
+                    </div>
+                    <h4 className="font-medium text-center">Medical Center - Emergency Services</h4>
+                  </div>
+                </div>
+                
+                <div className="mt-6 space-y-4">
+                  {/* AI Analysis Section */}
+                  <div className="p-4 bg-blue-50 rounded-lg">
+                    <h4 className="font-semibold text-blue-800 mb-2 flex items-center">
+                      <Eye className="h-4 w-4 mr-2" />
+                      AI-Powered Live Analysis
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="text-blue-700">
+                          🔍 <strong>Real-time Detection:</strong> Our AI continuously monitors all camera feeds for crowd density, unusual behavior, and safety concerns.
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-blue-700">
+                          ⚡ <strong>Instant Alerts:</strong> Any anomalies or emergencies are immediately flagged and emergency services are dispatched within 30 seconds.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Camera Stats */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <p className="text-2xl font-bold text-blue-600">234</p>
+                      <p className="text-sm text-gray-600">Total Cameras</p>
+                    </div>
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <p className="text-2xl font-bold text-green-600">231</p>
+                      <p className="text-sm text-gray-600">Online Now</p>
+                    </div>
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <p className="text-2xl font-bold text-orange-600">47</p>
+                      <p className="text-sm text-gray-600">Coverage Zones</p>
+                    </div>
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <p className="text-2xl font-bold text-purple-600">4K</p>
+                      <p className="text-sm text-gray-600">Resolution</p>
+                    </div>
+                  </div>
+                  
+                  {/* Privacy Notice */}
+                  <div className="p-4 bg-yellow-50 rounded-lg">
+                    <h4 className="font-semibold text-yellow-800 mb-2">🔒 Privacy & Security Notice</h4>
+                    <p className="text-yellow-700 text-sm">
+                      All camera feeds are used solely for safety and security purposes. Personal data is protected according to Indian privacy laws. 
+                      Recordings are automatically deleted after 30 days unless required for safety investigations.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
           
           <TabsContent value="alerts" className="space-y-4 mt-6">
             <Card>
