@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+// Authentication removed - using public access
 import { analyzeImageFrame, generateAlertText, transcribeAudio, compareFaces, analyzeIncidentFromText, findMatchingPerson, analyzeSearchMedia, searchPersonInMedia } from "./services/openai";
 import { analyzeCrowdWithPython, transcribeAudioWithPython, processVideoFeed, analyzeFrameForPersonCounting } from "./services/pythonAI";
 import multer from "multer";
@@ -11,8 +11,7 @@ import { randomUUID } from "crypto";
 const upload = multer({ storage: multer.memoryStorage() });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
-  await setupAuth(app);
+  // No authentication middleware - public access
 
   // WebSocket clients storage
   const wsClients = new Set<WebSocket>();
@@ -27,15 +26,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   }
 
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  // Public API routes - no authentication required
+
+  // Notification routes
+  app.get('/api/notifications', async (req, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
+      const notifications = await storage.getActiveNotifications();
+      res.json(notifications);
     } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
+      console.error("Error fetching notifications:", error);
+      res.status(500).json({ message: "Failed to fetch notifications" });
+    }
+  });
+
+  app.post('/api/notifications', async (req, res) => {
+    try {
+      const notification = await storage.createNotification(req.body);
+      
+      // Broadcast notification to all connected clients
+      broadcast('new_notification', notification);
+      
+      res.json(notification);
+    } catch (error) {
+      console.error("Error creating notification:", error);
+      res.status(500).json({ message: "Failed to create notification" });
+    }
+  });
+
+  app.delete('/api/notifications/:id', async (req, res) => {
+    try {
+      await storage.deactivateNotification(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deactivating notification:", error);
+      res.status(500).json({ message: "Failed to deactivate notification" });
+    }
+  });
+
+  // Help request routes
+  app.get('/api/help-requests', async (req, res) => {
+    try {
+      const helpRequests = await storage.getHelpRequests();
+      res.json(helpRequests);
+    } catch (error) {
+      console.error("Error fetching help requests:", error);
+      res.status(500).json({ message: "Failed to fetch help requests" });
+    }
+  });
+
+  app.post('/api/help-requests', async (req, res) => {
+    try {
+      const helpRequest = await storage.createHelpRequest(req.body);
+      
+      // Broadcast help request to admin clients
+      broadcast('new_help_request', helpRequest);
+      
+      res.json(helpRequest);
+    } catch (error) {
+      console.error("Error creating help request:", error);
+      res.status(500).json({ message: "Failed to create help request" });
+    }
+  });
+
+  app.patch('/api/help-requests/:id', async (req, res) => {
+    try {
+      const { status, assignedTo } = req.body;
+      await storage.updateHelpRequestStatus(req.params.id, status, assignedTo);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error updating help request:", error);
+      res.status(500).json({ message: "Failed to update help request" });
     }
   });
 
@@ -198,7 +258,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get events
-  app.get('/api/events', isAuthenticated, async (req, res) => {
+  app.get('/api/events', async (req, res) => {
     try {
       const events = await storage.getEvents(50);
       res.json(events);
@@ -209,7 +269,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Acknowledge event
-  app.post('/api/events/:eventId/acknowledge', isAuthenticated, async (req: any, res) => {
+  app.post('/api/events/:eventId/acknowledge', async (req: any, res) => {
     try {
       const { eventId } = req.params;
       const userId = req.user.claims.sub;
@@ -226,7 +286,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Assign event to volunteer
-  app.post('/api/events/:eventId/assign', isAuthenticated, async (req: any, res) => {
+  app.post('/api/events/:eventId/assign', async (req: any, res) => {
     try {
       const { eventId } = req.params;
       const { volunteerId } = req.body;
@@ -244,7 +304,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Generate alert
-  app.post('/api/alerts/generate', isAuthenticated, async (req, res) => {
+  app.post('/api/alerts/generate', async (req, res) => {
     try {
       const { zone, languages, alertType } = req.body;
       
@@ -261,7 +321,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get volunteers
-  app.get('/api/volunteers', isAuthenticated, async (req, res) => {
+  app.get('/api/volunteers', async (req, res) => {
     try {
       const volunteers = await storage.getVolunteers();
       res.json(volunteers);
@@ -272,7 +332,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get crowd statistics
-  app.get('/api/stats', isAuthenticated, async (req, res) => {
+  app.get('/api/stats', async (req, res) => {
     try {
       const stats = await storage.getCrowdStats();
       res.json(stats);
@@ -283,7 +343,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get sources (cameras)
-  app.get('/api/sources', isAuthenticated, async (req, res) => {
+  app.get('/api/sources', async (req, res) => {
     try {
       const sources = await storage.getSources();
       res.json(sources);
@@ -294,7 +354,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Lost person search with AI face recognition
-  app.post('/api/lost-persons/search', isAuthenticated, upload.single('image'), async (req, res) => {
+  app.post('/api/lost-persons/search', upload.single('image'), async (req, res) => {
     try {
       const file = req.file;
       
@@ -357,7 +417,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Video analysis for lost person search
-  app.post('/api/lost-persons/search-video', isAuthenticated, upload.single('video'), async (req, res) => {
+  app.post('/api/lost-persons/search-video', upload.single('video'), async (req, res) => {
     try {
       const file = req.file;
       if (!file) {
@@ -384,7 +444,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Two-step person search: Upload search media, then target person
-  app.post('/api/lost-persons/two-step-search', isAuthenticated, upload.fields([{ name: 'searchMedia', maxCount: 1 }, { name: 'targetPerson', maxCount: 1 }]), async (req, res) => {
+  app.post('/api/lost-persons/two-step-search', upload.fields([{ name: 'searchMedia', maxCount: 1 }, { name: 'targetPerson', maxCount: 1 }]), async (req, res) => {
     console.log('Two-step search request received');
     try {
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
