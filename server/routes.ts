@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated, requireAdmin } from "./replitAuth";
+import { setupAuth, isAuthenticated, requireAdmin } from "./auth";
 import { insertMessageSchema, insertHelpRequestSchema } from "@shared/schema";
 import { analyzeImageFrame, generateAlertText, transcribeAudio, compareFaces, analyzeIncidentFromText, findMatchingPerson, analyzeSearchMedia, searchPersonInMedia } from "./services/openai";
 import { analyzeCrowdWithPython, transcribeAudioWithPython, processVideoFeed, analyzeFrameForPersonCounting } from "./services/pythonAI";
@@ -28,17 +28,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   }
 
-  // Authentication routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
+  // Authentication routes (handled in auth.ts setup)
 
   // API routes - some protected, some public
 

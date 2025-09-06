@@ -13,7 +13,7 @@ import AlertsPage from "@/pages/alerts";
 import { DivineVisionPage } from "@/pages/divine-vision";
 import UserDashboard from "./pages/user-dashboard";
 import AdminDashboard from "./pages/admin-dashboard";
-import Landing from "./pages/landing";
+import AuthPage from "./pages/auth";
 
 function Router() {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -32,7 +32,7 @@ function Router() {
   return (
     <Switch>
       {!isAuthenticated ? (
-        <Route path="/" component={Landing} />
+        <Route path="/" component={AuthPage} />
       ) : (
         <>
           <Route path="/">

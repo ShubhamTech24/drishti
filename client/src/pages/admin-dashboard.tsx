@@ -190,7 +190,11 @@ export default function AdminDashboard() {
               </Link>
               <Button 
                 variant="destructive" 
-                onClick={() => window.location.href = '/api/logout'}
+                onClick={() => {
+                  fetch('/api/logout', { method: 'POST' })
+                    .then(() => window.location.href = '/')
+                    .catch(() => window.location.href = '/');
+                }}
                 data-testid="button-logout"
               >
                 Logout
