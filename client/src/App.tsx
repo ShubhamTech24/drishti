@@ -15,6 +15,7 @@ import UserDashboard from "./pages/user-dashboard";
 import AdminDashboard from "./pages/admin-dashboard";
 import AuthPage from "./pages/auth";
 import Landing from "./pages/landing";
+import GuestDashboard from "./pages/guest-dashboard";
 
 function Router() {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -34,8 +35,9 @@ function Router() {
     <Switch>
       {!isAuthenticated ? (
         <>
-          <Route path="/" component={Landing} />
+          <Route path="/landing" component={Landing} />
           <Route path="/auth" component={AuthPage} />
+          <Route path="/" component={GuestDashboard} />
           <Route path="/alerts" component={AlertsPage} />
           <Route path="/divine-vision" component={DivineVisionPage} />
         </>
