@@ -164,27 +164,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ? await analyzeCrowdWithPython(file.buffer)
         : await analyzeImageFrame(s3Url, frameId);
       
+      // Normalize analysis data to match database schema
+      const normalizedAnalysis = {
+        crowdDensity: useLocalAI ? (analysis as any).crowdDensity : (analysis as any).crowd_density,
+        estimatedPeople: useLocalAI ? (analysis as any).personCount : (analysis as any).estimated_people,
+        riskLevel: useLocalAI ? (analysis as any).riskLevel : (analysis as any).risk_level,
+        detectedBehaviors: useLocalAI ? (analysis as any).behaviorAnalysis : (analysis as any).detected_behaviors,
+        confidence: useLocalAI ? (analysis as any).confidence : (analysis as any).confidence
+      };
+      
       // Create analysis record
       const analysisRecord = await storage.createAnalysis({
         analysisId: randomUUID(),
         frameId,
-        crowdDensity: analysis.crowd_density,
-        estimatedPeople: analysis.estimated_people,
-        riskLevel: analysis.risk_level,
-        detectedBehaviors: analysis.detected_behaviors,
-        confidence: analysis.confidence.toString(),
+        crowdDensity: normalizedAnalysis.crowdDensity,
+        estimatedPeople: normalizedAnalysis.estimatedPeople,
+        riskLevel: normalizedAnalysis.riskLevel,
+        detectedBehaviors: Array.isArray(normalizedAnalysis.detectedBehaviors) ? normalizedAnalysis.detectedBehaviors : [normalizedAnalysis.detectedBehaviors],
+        confidence: normalizedAnalysis.confidence.toString(),
         rawResponse: analysis
       });
 
       // Create event if risk level is medium or higher
-      if (['medium', 'high', 'critical'].includes(analysis.risk_level)) {
-        const eventSummary = `${analysis.crowd_density} density detected with ${analysis.estimated_people} people. Risk: ${analysis.risk_level}`;
+      if (['medium', 'high', 'critical'].includes(normalizedAnalysis.riskLevel)) {
+        const eventSummary = `${normalizedAnalysis.crowdDensity} density detected with ${normalizedAnalysis.estimatedPeople} people. Risk: ${normalizedAnalysis.riskLevel}`;
         
         const event = await storage.createEvent({
           eventId: randomUUID(),
           kind: "analysis",
           sourceFrameId: frameId,
-          severity: analysis.risk_level,
+          severity: normalizedAnalysis.riskLevel,
           zoneId: source_id,
           summary: eventSummary
         });
@@ -377,19 +386,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Legacy face comparison for additional verification
       const legacyMatches = [];
       for (const person of allLostPersons) {
-        if (person.photoUrl) {
+        if (person.imageUrl) {
           try {
-            const comparison = await compareFaces(file.buffer, person.photoUrl);
+            const comparison = await compareFaces(file.buffer, person.imageUrl);
             if (comparison.similarity > 60) {
               legacyMatches.push({
                 id: person.id,
-                name: person.name,
+                name: person.personDescription,
                 age: person.age,
                 lastSeenLocation: person.lastSeenLocation,
-                photoUrl: person.photoUrl,
+                photoUrl: person.imageUrl,
                 similarity: comparison.similarity,
                 confidence: comparison.confidence,
-                reportedAt: person.reportedAt
+                reportedAt: person.createdAt
               });
             }
           } catch (e) {
@@ -504,6 +513,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // For demo purposes, return a working response instead of error
       console.log('Providing demo fallback response...');
+      const mediaType = req.files && (req.files as any).searchMedia ? 
+        ((req.files as any).searchMedia[0].mimetype.startsWith('video/') ? 'video' : 'image') : 'image';
+      const searchMediaFile = req.files && (req.files as any).searchMedia ? (req.files as any).searchMedia[0] : null;
+      const targetPersonFile = req.files && (req.files as any).targetPerson ? (req.files as any).targetPerson[0] : null;
+      
       const demoResult = {
         searchResult: {
           found: true,
