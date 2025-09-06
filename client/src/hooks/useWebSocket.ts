@@ -43,6 +43,22 @@ export function useWebSocket() {
                 title: "Alert Broadcast",
                 description: `Alert sent to ${message.data.zone}`,
               });
+            } else if (message.event === 'new_notification') {
+              toast({
+                title: "New Alert from Admin",
+                description: message.data.title,
+                variant: message.data.severity === 'critical' ? 'destructive' : 'default',
+              });
+            } else if (message.event === 'new_help_request') {
+              toast({
+                title: "New Help Request",
+                description: `Help needed: ${message.data.requestType}`,
+              });
+            } else if (message.event === 'help_request_update') {
+              toast({
+                title: "Help Request Update",
+                description: `Your request status: ${message.data.status}`,
+              });
             }
           } catch (error) {
             console.error('Error parsing WebSocket message:', error);

@@ -63,6 +63,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post('/api/notifications/:id/acknowledge', async (req, res) => {
+    try {
+      const notificationId = req.params.id;
+      
+      // In a real system, you might track who acknowledged what
+      // For now, we'll just return success
+      
+      broadcast('notification_acknowledged', { 
+        notificationId, 
+        acknowledgedAt: new Date().toISOString() 
+      });
+      
+      res.json({ success: true, acknowledgedAt: new Date().toISOString() });
+    } catch (error) {
+      console.error("Error acknowledging notification:", error);
+      res.status(500).json({ message: "Failed to acknowledge notification" });
+    }
+  });
+
   // Help request routes
   app.get('/api/help-requests', async (req, res) => {
     try {
@@ -92,10 +111,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { status, assignedTo } = req.body;
       await storage.updateHelpRequestStatus(req.params.id, status, assignedTo);
+      
+      // Broadcast status update to users
+      broadcast('help_request_update', { 
+        requestId: req.params.id, 
+        status, 
+        assignedTo,
+        updatedAt: new Date().toISOString() 
+      });
+      
       res.json({ success: true });
     } catch (error) {
       console.error("Error updating help request:", error);
       res.status(500).json({ message: "Failed to update help request" });
+    }
+  });
+
+  // Add status update route for help requests
+  app.patch('/api/help-requests/:id/status', async (req, res) => {
+    try {
+      const { status } = req.body;
+      await storage.updateHelpRequestStatus(req.params.id, status);
+      
+      // Broadcast status update to users
+      broadcast('help_request_update', { 
+        requestId: req.params.id, 
+        status, 
+        updatedAt: new Date().toISOString() 
+      });
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error updating help request status:", error);
+      res.status(500).json({ message: "Failed to update help request status" });
     }
   });
 
