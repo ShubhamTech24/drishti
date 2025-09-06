@@ -36,7 +36,7 @@ export default function AuthPage() {
     password: "",
     firstName: "",
     lastName: "",
-    role: "volunteer",
+    role: "user",
   });
 
   // Login mutation
@@ -286,6 +286,7 @@ export default function AuthPage() {
                         <SelectValue placeholder="Select your role" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="user">User</SelectItem>
                         <SelectItem value="volunteer">Volunteer</SelectItem>
                         <SelectItem value="admin">Administrator</SelectItem>
                       </SelectContent>

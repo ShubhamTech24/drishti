@@ -23,14 +23,22 @@ export default function Landing() {
             <span className="text-xs opacity-75">May All Be Happy • May All Be Free From Disease</span>
           </p>
           
-          <Button 
-            onClick={() => window.location.href = '/api/login'}
-            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-            data-testid="button-login"
-          >
-            <i className="fas fa-sign-in-alt mr-2"></i>
-            Access Command Center
-          </Button>
+          <div className="space-y-3">
+            <Button 
+              onClick={() => window.location.href = '/auth'}
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+              data-testid="button-login"
+            >
+              <i className="fas fa-sign-in-alt mr-2"></i>
+              Login / Sign Up
+            </Button>
+            
+            <div className="text-sm text-muted-foreground">
+              <p>✓ Browse alerts and emergency information</p>
+              <p>✓ Access Divine Vision AI analysis</p>
+              <p>✓ View crowd monitoring data</p>
+            </div>
+          </div>
           
           <div className="mt-6 text-xs text-muted-foreground">
             <p>Authorized Personnel Only</p>
