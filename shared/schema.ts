@@ -135,6 +135,33 @@ export const lostPersons = pgTable("lost_persons", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Notifications for disasters, panic alerts, etc.
+export const notifications = pgTable("notifications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: varchar("title").notNull(),
+  message: text("message").notNull(),
+  type: varchar("type").notNull(), // disaster, panic, emergency, info
+  severity: varchar("severity").notNull(), // low, medium, high, critical
+  isActive: boolean("is_active").default(true),
+  createdBy: varchar("created_by").default("admin"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Help requests from users
+export const helpRequests = pgTable("help_requests", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userName: varchar("user_name").notNull(),
+  userContact: varchar("user_contact").notNull(),
+  location: varchar("location").notNull(),
+  description: text("description").notNull(),
+  requestType: varchar("request_type").notNull(), // medical, security, lost_person, general
+  priority: varchar("priority").default("medium"), // low, medium, high, urgent
+  status: varchar("status").default("pending"), // pending, assigned, resolved, closed
+  assignedTo: varchar("assigned_to"),
+  createdAt: timestamp("created_at").defaultNow(),
+  resolvedAt: timestamp("resolved_at"),
+});
+
 // Insert schemas
 export const insertSourceSchema = createInsertSchema(sources).omit({ id: true, createdAt: true });
 export const insertFrameSchema = createInsertSchema(frames).omit({ id: true, tsUtc: true });
@@ -143,6 +170,8 @@ export const insertReportSchema = createInsertSchema(reports).omit({ id: true, c
 export const insertEventSchema = createInsertSchema(events).omit({ id: true, createdAt: true });
 export const insertVolunteerSchema = createInsertSchema(volunteers).omit({ id: true, lastSeen: true });
 export const insertLostPersonSchema = createInsertSchema(lostPersons).omit({ id: true, createdAt: true });
+export const insertNotificationSchema = createInsertSchema(notifications).omit({ id: true, createdAt: true });
+export const insertHelpRequestSchema = createInsertSchema(helpRequests).omit({ id: true, createdAt: true, resolvedAt: true });
 
 // Types
 export type UpsertUser = typeof users.$inferInsert;
@@ -154,6 +183,8 @@ export type Report = typeof reports.$inferSelect;
 export type Event = typeof events.$inferSelect;
 export type Volunteer = typeof volunteers.$inferSelect;
 export type LostPerson = typeof lostPersons.$inferSelect;
+export type Notification = typeof notifications.$inferSelect;
+export type HelpRequest = typeof helpRequests.$inferSelect;
 
 export type InsertSource = z.infer<typeof insertSourceSchema>;
 export type InsertFrame = z.infer<typeof insertFrameSchema>;
@@ -162,3 +193,5 @@ export type InsertReport = z.infer<typeof insertReportSchema>;
 export type InsertEvent = z.infer<typeof insertEventSchema>;
 export type InsertVolunteer = z.infer<typeof insertVolunteerSchema>;
 export type InsertLostPerson = z.infer<typeof insertLostPersonSchema>;
+export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+export type InsertHelpRequest = z.infer<typeof insertHelpRequestSchema>;

@@ -7,6 +7,8 @@ import {
   events,
   volunteers,
   lostPersons,
+  notifications,
+  helpRequests,
   type User,
   type UpsertUser,
   type Source,
@@ -16,6 +18,8 @@ import {
   type Event,
   type Volunteer,
   type LostPerson,
+  type Notification,
+  type HelpRequest,
   type InsertSource,
   type InsertFrame,
   type InsertAnalysis,
@@ -23,6 +27,8 @@ import {
   type InsertEvent,
   type InsertVolunteer,
   type InsertLostPerson,
+  type InsertNotification,
+  type InsertHelpRequest,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gte, sql } from "drizzle-orm";
@@ -65,6 +71,16 @@ export interface IStorage {
   createLostPerson(lostPerson: InsertLostPerson): Promise<LostPerson>;
   getLostPersons(): Promise<LostPerson[]>;
   searchLostPersons(embedding: string): Promise<LostPerson[]>;
+  
+  // Notification operations
+  createNotification(notification: InsertNotification): Promise<Notification>;
+  getActiveNotifications(): Promise<Notification[]>;
+  deactivateNotification(id: string): Promise<void>;
+  
+  // Help request operations
+  createHelpRequest(helpRequest: InsertHelpRequest): Promise<HelpRequest>;
+  getHelpRequests(): Promise<HelpRequest[]>;
+  updateHelpRequestStatus(id: string, status: string, assignedTo?: string): Promise<void>;
   
   // Analytics
   getCrowdStats(): Promise<{
@@ -221,6 +237,49 @@ export class DatabaseStorage implements IStorage {
       .where(eq(lostPersons.status, "missing"))
       .orderBy(desc(lostPersons.createdAt))
       .limit(10);
+  }
+
+  // Notification operations
+  async createNotification(notification: InsertNotification): Promise<Notification> {
+    const [newNotification] = await db.insert(notifications).values(notification).returning();
+    return newNotification;
+  }
+
+  async getActiveNotifications(): Promise<Notification[]> {
+    return await db.select().from(notifications)
+      .where(eq(notifications.isActive, true))
+      .orderBy(desc(notifications.createdAt));
+  }
+
+  async deactivateNotification(id: string): Promise<void> {
+    await db.update(notifications)
+      .set({ isActive: false })
+      .where(eq(notifications.id, id));
+  }
+
+  // Help request operations
+  async createHelpRequest(helpRequest: InsertHelpRequest): Promise<HelpRequest> {
+    const [newHelpRequest] = await db.insert(helpRequests).values(helpRequest).returning();
+    return newHelpRequest;
+  }
+
+  async getHelpRequests(): Promise<HelpRequest[]> {
+    return await db.select().from(helpRequests)
+      .orderBy(desc(helpRequests.createdAt));
+  }
+
+  async updateHelpRequestStatus(id: string, status: string, assignedTo?: string): Promise<void> {
+    const updateData: any = { status };
+    if (assignedTo) {
+      updateData.assignedTo = assignedTo;
+    }
+    if (status === "resolved") {
+      updateData.resolvedAt = new Date();
+    }
+    
+    await db.update(helpRequests)
+      .set(updateData)
+      .where(eq(helpRequests.id, id));
   }
 
   // Analytics
