@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drishti - Mahakumbh 2028 Command Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                borderRadius: {
+                    lg: "var(--radius)",
+                    md: "calc(var(--radius) - 2px)",
+                    sm: "calc(var(--radius) - 4px)",
+                },
+                colors: {
+                    background: "var(--background)",
+                    foreground: "var(--foreground)",
+                    card: {
+                        DEFAULT: "var(--card)",
+                        foreground: "var(--card-foreground)",
+                    },
+                    primary: {
+                        DEFAULT: "var(--primary)",
+                        foreground: "var(--primary-foreground)",
+                    },
+                    secondary: {
+                        DEFAULT: "var(--secondary)",
+                        foreground: "var(--secondary-foreground)",
+                    },
+                    muted: {
+                        DEFAULT: "var(--muted)",
+                        foreground: "var(--muted-foreground)",
+                    },
+                    accent: {
+                        DEFAULT: "var(--accent)",
+                        foreground: "var(--accent-foreground)",
+                    },
+                    destructive: {
+                        DEFAULT: "var(--destructive)",
+                        foreground: "var(--destructive-foreground)",
+                    },
+                    success: {
+                        DEFAULT: "var(--success)",
+                        foreground: "var(--success-foreground)",
+                    },
+                    border: "var(--border)",
+                    input: "var(--input)",
+                    ring: "var(--ring)",
+                },
+                fontFamily: {
+                    sans: ["Noto Sans", "system-ui", "sans-serif"],
+                    serif: ["Noto Serif", "Georgia", "serif"],
+                    devanagari: ["Noto Sans Devanagari", "sans-serif"],
+                }
+            },
+        }
+    };
+    </script>
+    <style>
+        :root {
+            --background: hsl(60 20% 96%);
+            --foreground: hsl(0 0% 18%);
+            --card: hsl(60 15% 94%);
+            --card-foreground: hsl(0 0% 18%);
+            --primary: hsl(17 100% 60%);
+            --primary-foreground: hsl(0 0% 98%);
+            --secondary: hsl(25 44% 32%);
+            --secondary-foreground: hsl(0 0% 98%);
+            --muted: hsl(60 10% 88%);
+            --muted-foreground: hsl(0 0% 40%);
+            --accent: hsl(51 100% 50%);
+            --accent-foreground: hsl(0 0% 15%);
+            --destructive: hsl(348 83% 47%);
+            --destructive-foreground: hsl(0 0% 98%);
+            --success: hsl(120 61% 34%);
+            --success-foreground: hsl(0 0% 98%);
+            --border: hsl(60 15% 85%);
+            --input: hsl(60 15% 92%);
+            --ring: hsl(17 100% 60%);
+            --radius: 0.75rem;
+        }
+        
+        .spiritual-border {
+            border-image: linear-gradient(45deg, var(--accent), var(--primary)) 1;
+            border-width: 2px;
+            border-style: solid;
+        }
+        
+        .heatmap-legend {
+            background: linear-gradient(to right, 
+                hsl(120 61% 34%), 
+                hsl(51 100% 50%), 
+                hsl(17 100% 60%), 
+                hsl(348 83% 47%));
+        }
+        
+        .pulse-ring {
+            animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+        }
+        
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(0.8);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(2.4);
+                opacity: 0;
+            }
+        }
+        
+        .lotus-pattern {
+            background-image: 
+                radial-gradient(circle at 25% 25%, hsl(51 100% 50% / 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, hsl(17 100% 60% / 0.1) 0%, transparent 50%);
+        }
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600;700&family=Noto+Serif:wght@400;500;600&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="h-full bg-background text-foreground font-sans lotus-pattern">
+    <!-- @COMPONENT: MainDashboard [admin dashboard with real-time monitoring] -->
+    <div class="min-h-screen flex flex-col">
+        <!-- Header with spiritual elements -->
+        <header class="bg-primary text-primary-foreground shadow-lg spiritual-border">
+            <div class="px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-accent rounded-full flex items-center justify-center">
+                            <i class="fas fa-eye text-2xl text-accent-foreground"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold font-serif">दृष्टि Drishti</h1>
+                            <p class="text-sm opacity-90">Mahakumbh 2028 • Ujjain Command Center</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-6">
+                        <!-- Status Indicators -->
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-3 h-3 bg-success rounded-full pulse-ring"></div>
+                                <span class="text-sm">AI Systems Online</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-3 h-3 bg-success rounded-full"></div>
+                                <span class="text-sm">247 Cameras Active</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-3 h-3 bg-accent rounded-full"></div>
+                                <span class="text-sm">15 Volunteers On Duty</span>
+                            </div>
+                        </div>
+                        
+                        <div class="text-right">
+                            <div class="text-sm font-medium" data-bind="currentDateTime">14:32 IST • 15 Feb 2028</div>
+                            <div class="text-xs opacity-80">कुंभ मेला दिवस 8</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 p-6 space-y-6">
+            <!-- Top Alert Banner -->
+            <div class="bg-accent border-l-4 border-primary p-4 rounded-lg shadow-md">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-bell text-primary text-xl"></i>
+                    <div>
+                        <h3 class="font-semibold text-accent-foreground">System Status: सक्रिय Active</h3>
+                        <p class="text-sm text-accent-foreground opacity-80">All monitoring systems operational • Next system check in 15 minutes</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Dashboard Grid -->
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 h-full">
+                <!-- Left Panel: Live Map & Heatmap -->
+                <!-- @COMPONENT: LiveCrowdMap [real-time crowd density visualization] -->
+                <div class="xl:col-span-2 space-y-6">
+                    <div class="bg-card rounded-xl shadow-lg spiritual-border p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-xl font-bold text-card-foreground flex items-center space-x-3">
+                                <i class="fas fa-map text-primary"></i>
+                                <span>Live Crowd Density • भीड़ घनत्व</span>
+                            </h2>
+                            <div class="flex items-center space-x-4">
+                                <div class="text-sm text-muted-foreground">
+                                    Total Pilgrims: <span class="font-bold text-primary" data-bind="totalPilgrims">1,247,832</span>
+                                </div>
+                                <button class="bg-secondary text-secondary-foreground px-4 py-2 rounded-lg hover:opacity-90 transition-opacity">
+                                    <i class="fas fa-expand-arrows-alt mr-2"></i>Fullscreen
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Map Container -->
+                        <div class="relative">
+                            <div id="map" class="h-96 rounded-lg border-2 border-border overflow-hidden" data-implementation="Leaflet map with heatmap overlay">
+                                <!-- Map will be rendered here by Leaflet -->
+                                <div class="h-full bg-muted flex items-center justify-center">
+                                    <div class="text-center">
+                                        <i class="fas fa-map-marked-alt text-4xl text-muted-foreground mb-2"></i>
+                                        <p class="text-muted-foreground">Interactive Map Loading...</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Heatmap Legend -->
+                            <div class="absolute bottom-4 left-4 bg-card/90 backdrop-blur rounded-lg p-3 border border-border">
+                                <h4 class="text-sm font-semibold mb-2 text-card-foreground">Crowd Density</h4>
+                                <div class="space-y-1">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-4 h-4 bg-success rounded"></div>
+                                        <span class="text-xs">Low (< 0.2)</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-4 h-4 bg-accent rounded"></div>
+                                        <span class="text-xs">Medium (0.2-0.5)</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-4 h-4 bg-primary rounded"></div>
+                                        <span class="text-xs">High (0.5-0.8)</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-4 h-4 bg-destructive rounded"></div>
+                                        <span class="text-xs">Critical (> 0.8)</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Zone Stats Overlay -->
+                            <div class="absolute top-4 right-4 bg-card/90 backdrop-blur rounded-lg p-3 border border-border">
+                                <h4 class="text-sm font-semibold mb-2 text-card-foreground">Active Zones</h4>
+                                <div class="space-y-1 text-xs">
+                                    <div class="flex justify-between">
+                                        <span>Ram Ghat:</span>
+                                        <span class="text-destructive font-bold">Critical</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>Mahakal Temple:</span>
+                                        <span class="text-primary font-bold">High</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>Triveni:</span>
+                                        <span class="text-accent font-bold">Medium</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>Transit Hub-A:</span>
+                                        <span class="text-success font-bold">Low</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Camera Feeds Grid -->
+                    <!-- @COMPONENT: CameraFeedGrid [live camera monitoring panels] -->
+                    <div class="bg-card rounded-xl shadow-lg spiritual-border p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-xl font-bold text-card-foreground flex items-center space-x-3">
+                                <i class="fas fa-video text-primary"></i>
+                                <span>Live Camera Feeds • कैमरा दृश्य</span>
+                            </h2>
+                            <div class="flex space-x-2">
+                                <button class="bg-primary text-primary-foreground px-3 py-1 rounded text-sm hover:opacity-90">
+                                    <i class="fas fa-expand mr-1"></i>View All
+                                </button>
+                                <button class="bg-secondary text-secondary-foreground px-3 py-1 rounded text-sm hover:opacity-90">
+                                    <i class="fas fa-cog mr-1"></i>Settings
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                            <!-- Camera Feed 1 -->
+                            <div class="relative bg-muted rounded-lg overflow-hidden border border-border">
+                                <div class="aspect-video bg-gray-900 relative">
+                                    <!-- Live crowd monitoring at Ram Ghat main entrance showing dense gathering -->
+                                    <img src="https://images.unsplash.com/photo-1540979388789-6cee28a1cdc9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600" 
+                                         alt="Live crowd monitoring at Ram Ghat" 
+                                         class="w-full h-full object-cover" 
+                                         data-mock="true" />
+                                    
+                                    <div class="absolute top-2 left-2 bg-destructive text-destructive-foreground px-2 py-1 rounded text-xs font-bold">
+                                        CRITICAL
+                                    </div>
+                                    <div class="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
+                                        LIVE
+                                    </div>
+                                    <div class="absolute bottom-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
+                                        Ram Ghat - CAM-01
+                                    </div>
+                                    <div class="absolute bottom-2 right-2 bg-destructive text-destructive-foreground px-2 py-1 rounded text-xs">
+                                        <i class="fas fa-users mr-1"></i>2,847
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Camera Feed 2 -->
+                            <div class="relative bg-muted rounded-lg overflow-hidden border border-border">
+                                <div class="aspect-video bg-gray-900 relative">
+                                    <!-- Mahakal Temple courtyard with moderate crowd density -->
+                                    <img src="https://images.unsplash.com/photo-1582510003544-4d00b7f74220?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600" 
+                                         alt="Mahakal Temple courtyard monitoring" 
+                                         class="w-full h-full object-cover" 
+                                         data-mock="true" />
+                                    
+                                    <div class="absolute top-2 left-2 bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-bold">
+                                        HIGH
+                                    </div>
+                                    <div class="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
+                                        LIVE
+                                    </div>
+                                    <div class="absolute bottom-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
+                                        Mahakal - CAM-07
+                                    </div>
+                                    <div class="absolute bottom-2 right-2 bg-primary text-primary-foreground px-2 py-1 rounded text-xs">
+                                        <i class="fas fa-users mr-1"></i>1,523
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Camera Feed 3 -->
+                            <div class="relative bg-muted rounded-lg overflow-hidden border border-border">
+                                <div class="aspect-video bg-gray-900 relative">
+                                    <!-- Transit hub showing organized flow of pilgrims -->
+                                    <img src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600" 
+                                         alt="Transit hub with organized pilgrim flow" 
+                                         class="w-full h-full object-cover" 
+                                         data-mock="true" />
+                                    
+                                    <div class="absolute top-2 left-2 bg-accent text-accent-foreground px-2 py-1 rounded text-xs font-bold">
+                                        MEDIUM
+                                    </div>
+                                    <div class="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
+                                        LIVE
+                                    </div>
+                                    <div class="absolute bottom-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
+                                        Transit-A - CAM-15
+                                    </div>
+                                    <div class="absolute bottom-2 right-2 bg-accent text-accent-foreground px-2 py-1 rounded text-xs">
+                                        <i class="fas fa-users mr-1"></i>892
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Camera Feed 4 -->
+                            <div class="relative bg-muted rounded-lg overflow-hidden border border-border">
+                                <div class="aspect-video bg-gray-900 relative">
+                                    <!-- Peaceful ghat area with low crowd density -->
+                                    <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600" 
+                                         alt="Peaceful ghat area with low crowd" 
+                                         class="w-full h-full object-cover" 
+                                         data-mock="true" />
+                                    
+                                    <div class="absolute top-2 left-2 bg-success text-success-foreground px-2 py-1 rounded text-xs font-bold">
+                                        LOW
+                                    </div>
+                                    <div class="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
+                                        LIVE
+                                    </div>
+                                    <div class="absolute bottom-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
+                                        Shipra - CAM-23
+                                    </div>
+                                    <div class="absolute bottom-2 right-2 bg-success text-success-foreground px-2 py-1 rounded text-xs">
+                                        <i class="fas fa-users mr-1"></i>234
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: CameraFeedGrid -->
+                <!-- @END_COMPONENT: LiveCrowdMap -->
+
+                <!-- Right Panel: Incidents & Controls -->
+                <div class="space-y-6">
+                    <!-- Real-time Incident Feed -->
+                    <!-- @COMPONENT: IncidentFeed [live incident monitoring and response] -->
+                    <div class="bg-card rounded-xl shadow-lg spiritual-border p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-xl font-bold text-card-foreground flex items-center space-x-3">
+                                <i class="fas fa-exclamation-triangle text-primary"></i>
+                                <span>Live Incidents • घटनाएं</span>
+                            </h2>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm text-muted-foreground">Auto-refresh:</span>
+                                <div class="w-3 h-3 bg-success rounded-full pulse-ring"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-4 max-h-96 overflow-y-auto">
+                            <!-- Critical Incident -->
+                            <div class="border-l-4 border-destructive bg-destructive/5 p-4 rounded-lg" data-mock="true">
+                                <div class="flex items-start justify-between mb-2">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-3 h-3 bg-destructive rounded-full"></div>
+                                        <span class="text-sm font-bold text-destructive">CRITICAL</span>
+                                        <span class="text-xs text-muted-foreground">2 min ago</span>
+                                    </div>
+                                    <button class="text-xs bg-destructive text-destructive-foreground px-2 py-1 rounded hover:opacity-90">
+                                        Assign
+                                    </button>
+                                </div>
+                                <h4 class="font-semibold text-card-foreground mb-1">Crowd Surge at Ram Ghat Entry</h4>
+                                <p class="text-sm text-muted-foreground mb-2">AI detected sudden directional movement toward exit. Est. 2,800+ people.</p>
+                                <div class="flex items-center space-x-4 text-xs">
+                                    <span><i class="fas fa-map-marker-alt mr-1"></i>Ram Ghat Zone-A</span>
+                                    <span><i class="fas fa-users mr-1"></i>2,847 people</span>
+                                    <span><i class="fas fa-percentage mr-1"></i>94% confidence</span>
+                                </div>
+                                <div class="mt-2 pt-2 border-t border-border">
+                                    <p class="text-xs text-muted-foreground">Suggested: Deploy crowd control team, activate exit guidance announcements</p>
+                                </div>
+                            </div>
+                            
+                            <!-- High Priority Incident -->
+                            <div class="border-l-4 border-primary bg-primary/5 p-4 rounded-lg" data-mock="true">
+                                <div class="flex items-start justify-between mb-2">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-3 h-3 bg-primary rounded-full"></div>
+                                        <span class="text-sm font-bold text-primary">HIGH</span>
+                                        <span class="text-xs text-muted-foreground">5 min ago</span>
+                                    </div>
+                                    <button class="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:opacity-90">
+                                        Assign
+                                    </button>
+                                </div>
+                                <h4 class="font-semibold text-card-foreground mb-1">Lost Child Report - Mahakal</h4>
+                                <p class="text-sm text-muted-foreground mb-2">Parent reported missing 6-year-old boy near Mahakal Temple main entrance.</p>
+                                <div class="flex items-center space-x-4 text-xs">
+                                    <span><i class="fas fa-map-marker-alt mr-1"></i>Mahakal Zone-C</span>
+                                    <span><i class="fas fa-child mr-1"></i>Age: 6</span>
+                                    <span><i class="fas fa-clock mr-1"></i>Missing: 45min</span>
+                                </div>
+                                <div class="mt-2 pt-2 border-t border-border">
+                                    <p class="text-xs text-muted-foreground">Suggested: Activate facial recognition search, broadcast description</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Medium Priority Incident -->
+                            <div class="border-l-4 border-accent bg-accent/5 p-4 rounded-lg" data-mock="true">
+                                <div class="flex items-start justify-between mb-2">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-3 h-3 bg-accent rounded-full"></div>
+                                        <span class="text-sm font-bold text-accent">MEDIUM</span>
+                                        <span class="text-xs text-muted-foreground">12 min ago</span>
+                                    </div>
+                                    <button class="text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded hover:opacity-90">
+                                        Acknowledged
+                                    </button>
+                                </div>
+                                <h4 class="font-semibold text-card-foreground mb-1">Congestion at Exit B</h4>
+                                <p class="text-sm text-muted-foreground mb-2">Slower movement detected near Transit Hub exit point.</p>
+                                <div class="flex items-center space-x-4 text-xs">
+                                    <span><i class="fas fa-map-marker-alt mr-1"></i>Transit Hub-B</span>
+                                    <span><i class="fas fa-users mr-1"></i>1,200 people</span>
+                                    <span><i class="fas fa-percentage mr-1"></i>76% confidence</span>
+                                </div>
+                            </div>
+
+                            <!-- Low Priority Incident -->
+                            <div class="border-l-4 border-success bg-success/5 p-4 rounded-lg" data-mock="true">
+                                <div class="flex items-start justify-between mb-2">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-3 h-3 bg-success rounded-full"></div>
+                                        <span class="text-sm font-bold text-success">LOW</span>
+                                        <span class="text-xs text-muted-foreground">20 min ago</span>
+                                    </div>
+                                    <button class="text-xs bg-success text-success-foreground px-2 py-1 rounded hover:opacity-90">
+                                        Resolved
+                                    </button>
+                                </div>
+                                <h4 class="font-semibold text-card-foreground mb-1">Medical Assistance Request</h4>
+                                <p class="text-sm text-muted-foreground mb-2">Pilgrim requested first aid assistance at Triveni Sangam.</p>
+                                <div class="flex items-center space-x-4 text-xs">
+                                    <span><i class="fas fa-map-marker-alt mr-1"></i>Triveni Zone-B</span>
+                                    <span><i class="fas fa-heartbeat mr-1"></i>Minor injury</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- @END_COMPONENT: IncidentFeed -->
+
+                    <!-- Quick Actions Panel -->
+                    <!-- @COMPONENT: QuickActions [emergency response controls] -->
+                    <div class="bg-card rounded-xl shadow-lg spiritual-border p-6">
+                        <h2 class="text-xl font-bold text-card-foreground mb-6 flex items-center space-x-3">
+                            <i class="fas fa-bolt text-primary"></i>
+                            <span>Quick Actions • त्वरित कार्य</span>
+                        </h2>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <button class="bg-destructive text-destructive-foreground p-4 rounded-lg hover:opacity-90 transition-opacity" data-event="click:triggerEmergencyAlert">
+                                <i class="fas fa-bullhorn text-2xl mb-2"></i>
+                                <div class="text-sm font-bold">Emergency Alert</div>
+                                <div class="text-xs opacity-80">Broadcast to all zones</div>
+                            </button>
+                            
+                            <button class="bg-primary text-primary-foreground p-4 rounded-lg hover:opacity-90 transition-opacity" data-event="click:deployVolunteers">
+                                <i class="fas fa-users-cog text-2xl mb-2"></i>
+                                <div class="text-sm font-bold">Deploy Teams</div>
+                                <div class="text-xs opacity-80">Send volunteers</div>
+                            </button>
+                            
+                            <button class="bg-accent text-accent-foreground p-4 rounded-lg hover:opacity-90 transition-opacity" data-event="click:activateRouting">
+                                <i class="fas fa-route text-2xl mb-2"></i>
+                                <div class="text-sm font-bold">Crowd Routing</div>
+                                <div class="text-xs opacity-80">Guide flow paths</div>
+                            </button>
+                            
+                            <button class="bg-secondary text-secondary-foreground p-4 rounded-lg hover:opacity-90 transition-opacity" data-event="click:lockdownProtocol">
+                                <i class="fas fa-shield-alt text-2xl mb-2"></i>
+                                <div class="text-sm font-bold">Lockdown</div>
+                                <div class="text-xs opacity-80">Emergency protocol</div>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- @END_COMPONENT: QuickActions -->
+                </div>
+
+                <!-- Far Right Panel: System Status & Analytics -->
+                <div class="space-y-6">
+                    <!-- System Health -->
+                    <!-- @COMPONENT: SystemHealth [real-time system monitoring] -->
+                    <div class="bg-card rounded-xl shadow-lg spiritual-border p-6">
+                        <h3 class="text-lg font-bold text-card-foreground mb-4 flex items-center space-x-2">
+                            <i class="fas fa-heartbeat text-primary"></i>
+                            <span>System Health</span>
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-muted-foreground">AI Processing</span>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-3 h-3 bg-success rounded-full"></div>
+                                    <span class="text-sm font-medium">Optimal</span>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-muted-foreground">Database</span>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-3 h-3 bg-success rounded-full"></div>
+                                    <span class="text-sm font-medium">Healthy</span>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-muted-foreground">Camera Network</span>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-3 h-3 bg-accent rounded-full"></div>
+                                    <span class="text-sm font-medium">247/250 Online</span>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-muted-foreground">Speaker System</span>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-3 h-3 bg-success rounded-full"></div>
+                                    <span class="text-sm font-medium">All Zones</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- @END_COMPONENT: SystemHealth -->
+
+                    <!-- Live Statistics -->
+                    <!-- @COMPONENT: LiveStats [real-time crowd statistics] -->
+                    <div class="bg-card rounded-xl shadow-lg spiritual-border p-6">
+                        <h3 class="text-lg font-bold text-card-foreground mb-4 flex items-center space-x-2">
+                            <i class="fas fa-chart-line text-primary"></i>
+                            <span>Live Statistics</span>
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <div class="text-center p-4 bg-muted rounded-lg">
+                                <div class="text-2xl font-bold text-primary" data-bind="totalAttendees">1,247,832</div>
+                                <div class="text-sm text-muted-foreground">Total Attendees Today</div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="text-center p-3 bg-success/10 rounded-lg">
+                                    <div class="text-lg font-bold text-success" data-bind="safeZones">89%</div>
+                                    <div class="text-xs text-muted-foreground">Safe Zones</div>
+                                </div>
+                                <div class="text-center p-3 bg-destructive/10 rounded-lg">
+                                    <div class="text-lg font-bold text-destructive" data-bind="highDensityZones">11%</div>
+                                    <div class="text-xs text-muted-foreground">High Density</div>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-2">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-muted-foreground">Response Time Avg:</span>
+                                    <span class="font-medium text-success" data-bind="avgResponseTime">1.8 min</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-muted-foreground">Active Volunteers:</span>
+                                    <span class="font-medium" data-bind="activeVolunteers">15</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-muted-foreground">Reports Today:</span>
+                                    <span class="font-medium" data-bind="reportsToday">143</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- @END_COMPONENT: LiveStats -->
+
+                    <!-- Alert Broadcasting -->
+                    <!-- @COMPONENT: AlertBroadcast [multilingual alert system] -->
+                    <div class="bg-card rounded-xl shadow-lg spiritual-border p-6">
+                        <h3 class="text-lg font-bold text-card-foreground mb-4 flex items-center space-x-2">
+                            <i class="fas fa-broadcast-tower text-primary"></i>
+                            <span>Alert Broadcast</span>
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-card-foreground mb-2">Target Zone</label>
+                                <select class="w-full p-2 border border-border rounded-lg bg-input text-foreground">
+                                    <option>All Zones</option>
+                                    <option>Ram Ghat</option>
+                                    <option>Mahakal Temple</option>
+                                    <option>Triveni Sangam</option>
+                                    <option>Transit Hubs</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-card-foreground mb-2">Languages • भाषाएं</label>
+                                <div class="flex flex-wrap gap-2">
+                                    <label class="flex items-center space-x-2">
+                                        <input type="checkbox" checked class="rounded text-primary">
+                                        <span class="text-sm">Hindi हिंदी</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="checkbox" checked class="rounded text-primary">
+                                        <span class="text-sm">English</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="checkbox" class="rounded text-primary">
+                                        <span class="text-sm">Marathi मराठी</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-card-foreground mb-2">Alert Type</label>
+                                <select class="w-full p-2 border border-border rounded-lg bg-input text-foreground">
+                                    <option>Crowd Guidance</option>
+                                    <option>Exit Instructions</option>
+                                    <option>Safety Advisory</option>
+                                    <option>Emergency Evacuation</option>
+                                </select>
+                            </div>
+                            
+                            <button class="w-full bg-primary text-primary-foreground py-3 rounded-lg hover:opacity-90 transition-opacity font-semibold" data-event="click:broadcastAlert">
+                                <i class="fas fa-bullhorn mr-2"></i>
+                                Generate & Broadcast Alert
+                            </button>
+                            
+                            <div class="text-xs text-muted-foreground bg-muted p-2 rounded">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                AI will generate appropriate calming instructions in selected languages
+                            </div>
+                        </div>
+                    </div>
+                    <!-- @END_COMPONENT: AlertBroadcast -->
+
+                    <!-- Lost & Found -->
+                    <!-- @COMPONENT: LostAndFound [image matching system] -->
+                    <div class="bg-card rounded-xl shadow-lg spiritual-border p-6">
+                        <h3 class="text-lg font-bold text-card-foreground mb-4 flex items-center space-x-2">
+                            <i class="fas fa-search text-primary"></i>
+                            <span>Lost & Found</span>
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-card-foreground mb-2">Upload Photo</label>
+                                <div class="border-2 border-dashed border-border rounded-lg p-4 text-center">
+                                    <i class="fas fa-camera text-muted-foreground text-2xl mb-2"></i>
+                                    <p class="text-sm text-muted-foreground">Drop image or click to upload</p>
+                                    <input type="file" class="hidden" accept="image/*" data-implementation="File upload for facial recognition">
+                                </div>
+                            </div>
+                            
+                            <button class="w-full bg-secondary text-secondary-foreground py-2 rounded-lg hover:opacity-90 transition-opacity" data-event="click:searchMatches">
+                                <i class="fas fa-search mr-2"></i>
+                                Search Matches
+                            </button>
+                            
+                            <div class="bg-muted p-3 rounded-lg">
+                                <h4 class="text-sm font-semibold text-card-foreground mb-2">Recent Matches</h4>
+                                <div class="space-y-2">
+                                    <div class="flex items-center space-x-3 text-xs" data-mock="true">
+                                        <div class="w-8 h-8 bg-success rounded-full flex items-center justify-center">
+                                            <i class="fas fa-check text-success-foreground"></i>
+                                        </div>
+                                        <div>
+                                            <div class="font-medium">Match found - 87% confidence</div>
+                                            <div class="text-muted-foreground">Located at Mahakal Zone-A</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-3 text-xs" data-mock="true">
+                                        <div class="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
+                                            <i class="fas fa-search text-accent-foreground"></i>
+                                        </div>
+                                        <div>
+                                            <div class="font-medium">Processing search...</div>
+                                            <div class="text-muted-foreground">Scanning 247 cameras</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- @END_COMPONENT: LostAndFound -->
+                </div>
+            </div>
+
+            <!-- Bottom Panel: Volunteer Management & Reports -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Volunteer Status -->
+                <!-- @COMPONENT: VolunteerManagement [volunteer coordination system] -->
+                <div class="bg-card rounded-xl shadow-lg spiritual-border p-6">
+                    <h3 class="text-lg font-bold text-card-foreground mb-4 flex items-center space-x-2">
+                        <i class="fas fa-users text-primary"></i>
+                        <span>Volunteer Status • स्वयंसेवक स्थिति</span>
+                    </h3>
+                    
+                    <div class="space-y-3">
+                        <!-- @MAP: volunteers.map(volunteer => ( -->
+                        <div class="flex items-center justify-between p-3 bg-muted rounded-lg" data-mock="true">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-success rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-success-foreground"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-card-foreground">Volunteer #V001</div>
+                                    <div class="text-sm text-muted-foreground">Ram Ghat Zone-A</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-medium text-success">Available</div>
+                                <div class="text-xs text-muted-foreground">Response: 1.2 min</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-muted rounded-lg" data-mock="true">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-primary-foreground"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-card-foreground">Volunteer #V007</div>
+                                    <div class="text-sm text-muted-foreground">Mahakal Temple</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-medium text-primary">En Route</div>
+                                <div class="text-xs text-muted-foreground">ETA: 3 min</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-muted rounded-lg" data-mock="true">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-accent rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-accent-foreground"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-card-foreground">Volunteer #V012</div>
+                                    <div class="text-sm text-muted-foreground">Transit Hub-B</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-medium text-accent">On Break</div>
+                                <div class="text-xs text-muted-foreground">Resume: 15:00</div>
+                            </div>
+                        </div>
+                        <!-- @END_MAP )) -->
+                    </div>
+                    
+                    <button class="w-full mt-4 bg-secondary text-secondary-foreground py-2 rounded-lg hover:opacity-90 transition-opacity" data-event="click:manageVolunteers">
+                        <i class="fas fa-cog mr-2"></i>
+                        Manage All Volunteers
+                    </button>
+                </div>
+                <!-- @END_COMPONENT: VolunteerManagement -->
+
+                <!-- Recent Reports -->
+                <!-- @COMPONENT: RecentReports [crowd-sourced incident reports] -->
+                <div class="bg-card rounded-xl shadow-lg spiritual-border p-6">
+                    <h3 class="text-lg font-bold text-card-foreground mb-4 flex items-center space-x-2">
+                        <i class="fas fa-file-alt text-primary"></i>
+                        <span>Recent Reports • रिपोर्ट</span>
+                    </h3>
+                    
+                    <div class="space-y-3">
+                        <div class="p-3 bg-destructive/5 border-l-4 border-destructive rounded-lg" data-mock="true">
+                            <div class="flex items-center space-x-2 mb-1">
+                                <i class="fas fa-exclamation-triangle text-destructive"></i>
+                                <span class="text-sm font-semibold text-destructive">Panic Button</span>
+                                <span class="text-xs text-muted-foreground">3 min ago</span>
+                            </div>
+                            <p class="text-sm text-card-foreground">Activated from Ram Ghat area</p>
+                            <p class="text-xs text-muted-foreground">Location: 23.1765, 75.7885</p>
+                        </div>
+                        
+                        <div class="p-3 bg-accent/5 border-l-4 border-accent rounded-lg" data-mock="true">
+                            <div class="flex items-center space-x-2 mb-1">
+                                <i class="fas fa-users text-accent"></i>
+                                <span class="text-sm font-semibold text-accent">Congestion</span>
+                                <span class="text-xs text-muted-foreground">8 min ago</span>
+                            </div>
+                            <p class="text-sm text-card-foreground">"भीड़ बहुत ज्यादा है यहाँ" (Crowd too heavy here)</p>
+                            <p class="text-xs text-muted-foreground">Location: Mahakal Temple</p>
+                        </div>
+                        
+                        <div class="p-3 bg-primary/5 border-l-4 border-primary rounded-lg" data-mock="true">
+                            <div class="flex items-center space-x-2 mb-1">
+                                <i class="fas fa-child text-primary"></i>
+                                <span class="text-sm font-semibold text-primary">Lost Person</span>
+                                <span class="text-xs text-muted-foreground">15 min ago</span>
+                            </div>
+                            <p class="text-sm text-card-foreground">Child missing near Triveni Sangam</p>
+                            <p class="text-xs text-muted-foreground">Photo uploaded • Age: 6 years</p>
+                        </div>
+                        
+                        <div class="p-3 bg-success/5 border-l-4 border-success rounded-lg" data-mock="true">
+                            <div class="flex items-center space-x-2 mb-1">
+                                <i class="fas fa-check-circle text-success"></i>
+                                <span class="text-sm font-semibold text-success">Resolved</span>
+                                <span class="text-xs text-muted-foreground">22 min ago</span>
+                            </div>
+                            <p class="text-sm text-card-foreground">Medical assistance completed</p>
+                            <p class="text-xs text-muted-foreground">Transit Hub-A • Response time: 1.5 min</p>
+                        </div>
+                    </div>
+                    
+                    <button class="w-full mt-4 bg-secondary text-secondary-foreground py-2 rounded-lg hover:opacity-90 transition-opacity" data-event="click:viewAllReports">
+                        <i class="fas fa-list mr-2"></i>
+                        View All Reports
+                    </button>
+                </div>
+                <!-- @END_COMPONENT: RecentReports -->
+            </div>
+        </main>
+
+        <!-- Footer with spiritual elements -->
+        <footer class="bg-secondary text-secondary-foreground p-4 text-center">
+            <div class="flex items-center justify-center space-x-6 text-sm">
+                <span>🕉️ सर्वे भवन्तु सुखिनः • May All Be Happy</span>
+                <span>|</span>
+                <span>Emergency Hotline: 108</span>
+                <span>|</span>
+                <span>Mahakumbh 2028 • Ujjain</span>
+            </div>
+        </footer>
+    </div>
+    <!-- @END_COMPONENT: MainDashboard -->
+
+    <!-- Floating Emergency Button -->
+    <div class="fixed bottom-6 right-6 z-50">
+        <button class="bg-destructive text-destructive-foreground w-16 h-16 rounded-full shadow-2xl hover:scale-105 transition-transform" data-event="click:emergencyMode">
+            <i class="fas fa-exclamation text-2xl"></i>
+        </button>
+    </div>
+
+    <!-- Mobile Responsive Navigation (Hidden on Desktop) -->
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4">
+        <div class="flex justify-around">
+            <button class="flex flex-col items-center space-y-1 text-primary">
+                <i class="fas fa-tachometer-alt"></i>
+                <span class="text-xs">Dashboard</span>
+            </button>
+            <button class="flex flex-col items-center space-y-1 text-muted-foreground">
+                <i class="fas fa-map"></i>
+                <span class="text-xs">Map</span>
+            </button>
+            <button class="flex flex-col items-center space-y-1 text-muted-foreground">
+                <i class="fas fa-bell"></i>
+                <span class="text-xs">Alerts</span>
+            </button>
+            <button class="flex flex-col items-center space-y-1 text-muted-foreground">
+                <i class="fas fa-users"></i>
+                <span class="text-xs">Teams</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+    (function() {
+        // Initialize Leaflet Map
+        // TODO: Implement real-time heatmap overlay and crowd density visualization
+        const map = L.map('map').setView([23.1765, 75.7885], 15); // Ujjain coordinates
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        
+        // Mock crowd density zones
+        const zones = [
+            { name: 'Ram Ghat', lat: 23.1765, lng: 75.7885, density: 'critical', count: 2847 },
+            { name: 'Mahakal Temple', lat: 23.1825, lng: 75.7685, density: 'high', count: 1523 },
+            { name: 'Triveni Sangam', lat: 23.1705, lng: 75.7785, density: 'medium', count: 892 },
+            { name: 'Transit Hub-A', lat: 23.1695, lng: 75.7685, density: 'low', count: 234 }
+        ];
+        
+        zones.forEach(zone => {
+            const color = zone.density === 'critical' ? '#DC143C' : 
+                         zone.density === 'high' ? '#FF6B35' :
+                         zone.density === 'medium' ? '#FFD700' : '#228B22';
+                         
+            L.circle([zone.lat, zone.lng], {
+                color: color,
+                fillColor: color,
+                fillOpacity: 0.3,
+                radius: zone.count / 2
+            }).addTo(map)
+            .bindPopup(`<strong>${zone.name}</strong><br>Density: ${zone.density}<br>Count: ${zone.count}`);
+        });
+        
+        // Simulate real-time updates
+        // TODO: Replace with actual WebSocket connection for real-time data
+        setInterval(() => {
+            // Update crowd counts and heatmap
+            const statsElements = document.querySelectorAll('[data-bind]');
+            statsElements.forEach(el => {
+                if (el.getAttribute('data-bind') === 'totalPilgrims') {
+                    const current = parseInt(el.textContent.replace(/,/g, ''));
+                    const updated = current + Math.floor(Math.random() * 100) - 50;
+                    el.textContent = updated.toLocaleString();
+                }
+            });
+        }, 5000);
+        
+        // Simulate incident feed updates
+        // TODO: Implement real-time incident management system
+        function simulateIncident() {
+            const incidentTypes = ['crowd_surge', 'lost_person', 'medical', 'congestion'];
+            const zones = ['Ram Ghat', 'Mahakal Temple', 'Triveni Sangam', 'Transit Hub'];
+            
+            // This would be replaced by actual incident data from WebSocket
+            console.log('New incident detected:', {
+                type: incidentTypes[Math.floor(Math.random() * incidentTypes.length)],
+                zone: zones[Math.floor(Math.random() * zones.length)],
+                timestamp: new Date().toISOString(),
+                severity: Math.random() > 0.7 ? 'high' : 'medium'
+            });
+        }
+        
+        // Emergency mode activation
+        // TODO: Implement emergency protocol activation
+        document.querySelector('[data-event="click:emergencyMode"]')?.addEventListener('click', () => {
+            if (confirm('Activate Emergency Protocol? This will trigger immediate response procedures.')) {
+                document.body.classList.add('emergency-mode');
+                // Emergency protocol implementation would go here
+            }
+        });
+        
+        // Alert broadcasting
+        // TODO: Implement multilingual alert generation and broadcasting
+        document.querySelector('[data-event="click:broadcastAlert"]')?.addEventListener('click', () => {
+            // This would integrate with OpenAI for text generation and TTS
+            alert('Alert broadcast initiated. Messages will be generated in selected languages.');
+        });
+        
+        // Lost & Found search
+        // TODO: Implement facial recognition and vector search
+        document.querySelector('[data-event="click:searchMatches"]')?.addEventListener('click', () => {
+            // This would process uploaded image and search vector database
+            alert('Searching across camera network... Results will appear in Recent Matches.');
+        });
+    })();
+    </script>
+</body>
+</html>
