@@ -1,7 +1,4 @@
-import { useEffect } from "react";
-import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { isUnauthorizedError } from "@/lib/authUtils";
 import { Button } from "@/components/ui/button";
 import LiveCrowdMap from "@/components/LiveCrowdMap";
 import IncidentFeed from "@/components/IncidentFeed";
@@ -16,36 +13,7 @@ import { useWebSocket } from "@/hooks/useWebSocket";
 
 export default function Dashboard() {
   const { toast } = useToast();
-  const { isAuthenticated, isLoading, user } = useAuth();
   const { socket, isConnected } = useWebSocket();
-
-  // Redirect to home if not authenticated
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      toast({
-        title: "Unauthorized",
-        description: "You are logged out. Logging in again...",
-        variant: "destructive",
-      });
-      setTimeout(() => {
-        window.location.href = "/api/login";
-      }, 500);
-      return;
-    }
-  }, [isAuthenticated, isLoading, toast]);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background lotus-pattern flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4 pulse-ring">
-            <i className="fas fa-eye text-2xl text-primary-foreground"></i>
-          </div>
-          <p className="text-muted-foreground">Loading Command Center...</p>
-        </div>
-      </div>
-    );
-  }
 
   const currentDateTime = new Date().toLocaleString('en-IN', {
     timeZone: 'Asia/Kolkata',
@@ -115,16 +83,28 @@ export default function Dashboard() {
                 <div className="text-xs opacity-80">कुंभ मेला दिवस 8</div>
               </div>
               
-              <Button 
-                onClick={() => window.location.href = '/api/logout'}
-                variant="outline"
-                size="sm"
-                className="text-primary-foreground border-primary-foreground hover:bg-primary-foreground hover:text-primary"
-                data-testid="button-logout"
-              >
-                <i className="fas fa-sign-out-alt mr-2"></i>
-                Logout
-              </Button>
+              <div className="flex items-center space-x-2">
+                <Button 
+                  onClick={() => window.location.href = '/admin-dashboard'}
+                  variant="outline"
+                  size="sm"
+                  className="text-primary-foreground border-primary-foreground hover:bg-primary-foreground hover:text-primary"
+                  data-testid="button-admin"
+                >
+                  <i className="fas fa-user-shield mr-2"></i>
+                  Admin
+                </Button>
+                <Button 
+                  onClick={() => window.location.href = '/user-dashboard'}
+                  variant="outline"
+                  size="sm"
+                  className="text-primary-foreground border-primary-foreground hover:bg-primary-foreground hover:text-primary"
+                  data-testid="button-user"
+                >
+                  <i className="fas fa-user mr-2"></i>
+                  User
+                </Button>
+              </div>
             </div>
           </div>
         </div>
