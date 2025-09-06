@@ -168,6 +168,20 @@ export default function AuthPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            <div className="mb-4">
+              <Button 
+                variant="outline" 
+                className="w-full mb-4"
+                onClick={() => window.location.href = '/'}
+                data-testid="button-browse-guest"
+              >
+                🌸 Browse as Guest (No Login Required)
+              </Button>
+              <div className="text-center text-sm text-muted-foreground mb-2">
+                or login for full access
+              </div>
+            </div>
+            
             <Tabs defaultValue="login" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="login">Login</TabsTrigger>
