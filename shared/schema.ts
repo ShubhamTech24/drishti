@@ -150,6 +150,7 @@ export const notifications = pgTable("notifications", {
 // Help requests from users
 export const helpRequests = pgTable("help_requests", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id"), // Link to authenticated user
   userName: varchar("user_name").notNull(),
   userContact: varchar("user_contact").notNull(),
   location: varchar("location").notNull(),
@@ -162,6 +163,32 @@ export const helpRequests = pgTable("help_requests", {
   resolvedAt: timestamp("resolved_at"),
 });
 
+// Messages between users and admins
+export const messages = pgTable("messages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  fromUserId: varchar("from_user_id").notNull(),
+  toUserId: varchar("to_user_id"), // null for broadcast messages
+  subject: varchar("subject"),
+  content: text("content").notNull(),
+  messageType: varchar("message_type").default("direct"), // direct, broadcast, system
+  isRead: boolean("is_read").default(false),
+  relatedHelpRequestId: varchar("related_help_request_id"), // Link to help request
+  priority: varchar("priority").default("normal"), // low, normal, high, urgent
+  createdAt: timestamp("created_at").defaultNow(),
+  readAt: timestamp("read_at"),
+});
+
+// Message attachments
+export const messageAttachments = pgTable("message_attachments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  messageId: varchar("message_id").notNull(),
+  fileName: varchar("file_name").notNull(),
+  fileUrl: text("file_url").notNull(),
+  fileType: varchar("file_type"), // image, video, audio, document
+  fileSize: integer("file_size"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Insert schemas
 export const insertSourceSchema = createInsertSchema(sources).omit({ id: true, createdAt: true });
 export const insertFrameSchema = createInsertSchema(frames).omit({ id: true, tsUtc: true });
@@ -172,6 +199,8 @@ export const insertVolunteerSchema = createInsertSchema(volunteers).omit({ id: t
 export const insertLostPersonSchema = createInsertSchema(lostPersons).omit({ id: true, createdAt: true });
 export const insertNotificationSchema = createInsertSchema(notifications).omit({ id: true, createdAt: true });
 export const insertHelpRequestSchema = createInsertSchema(helpRequests).omit({ id: true, createdAt: true, resolvedAt: true });
+export const insertMessageSchema = createInsertSchema(messages).omit({ id: true, createdAt: true, readAt: true });
+export const insertMessageAttachmentSchema = createInsertSchema(messageAttachments).omit({ id: true, createdAt: true });
 
 // Types
 export type UpsertUser = typeof users.$inferInsert;
@@ -185,6 +214,8 @@ export type Volunteer = typeof volunteers.$inferSelect;
 export type LostPerson = typeof lostPersons.$inferSelect;
 export type Notification = typeof notifications.$inferSelect;
 export type HelpRequest = typeof helpRequests.$inferSelect;
+export type Message = typeof messages.$inferSelect;
+export type MessageAttachment = typeof messageAttachments.$inferSelect;
 
 export type InsertSource = z.infer<typeof insertSourceSchema>;
 export type InsertFrame = z.infer<typeof insertFrameSchema>;
@@ -195,3 +226,5 @@ export type InsertVolunteer = z.infer<typeof insertVolunteerSchema>;
 export type InsertLostPerson = z.infer<typeof insertLostPersonSchema>;
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
 export type InsertHelpRequest = z.infer<typeof insertHelpRequestSchema>;
+export type InsertMessage = z.infer<typeof insertMessageSchema>;
+export type InsertMessageAttachment = z.infer<typeof insertMessageAttachmentSchema>;

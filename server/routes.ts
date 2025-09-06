@@ -2,7 +2,8 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
-// Authentication removed - using public access
+import { setupAuth, isAuthenticated, requireAdmin } from "./replitAuth";
+import { insertMessageSchema, insertHelpRequestSchema } from "@shared/schema";
 import { analyzeImageFrame, generateAlertText, transcribeAudio, compareFaces, analyzeIncidentFromText, findMatchingPerson, analyzeSearchMedia, searchPersonInMedia } from "./services/openai";
 import { analyzeCrowdWithPython, transcribeAudioWithPython, processVideoFeed, analyzeFrameForPersonCounting } from "./services/pythonAI";
 import multer from "multer";
@@ -11,7 +12,8 @@ import { randomUUID } from "crypto";
 const upload = multer({ storage: multer.memoryStorage() });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // No authentication middleware - public access
+  // Setup authentication
+  await setupAuth(app);
 
   // WebSocket clients storage
   const wsClients = new Set<WebSocket>();
@@ -26,7 +28,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   }
 
-  // Public API routes - no authentication required
+  // Authentication routes
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // API routes - some protected, some public
 
   // Notification routes
   app.get('/api/notifications', async (req, res) => {
@@ -39,7 +53,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/notifications', async (req, res) => {
+  app.post('/api/notifications', requireAdmin, async (req, res) => {
     try {
       const notification = await storage.createNotification(req.body);
       
@@ -53,7 +67,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/notifications/:id', async (req, res) => {
+  app.delete('/api/notifications/:id', requireAdmin, async (req, res) => {
     try {
       await storage.deactivateNotification(req.params.id);
       res.json({ success: true });
@@ -83,19 +97,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Help request routes
-  app.get('/api/help-requests', async (req, res) => {
+  app.get('/api/help-requests', isAuthenticated, async (req: any, res) => {
     try {
-      const helpRequests = await storage.getHelpRequests();
-      res.json(helpRequests);
+      const user = req.user;
+      const dbUser = await storage.getUser(user.claims.sub);
+      
+      if (dbUser?.role === 'admin') {
+        // Admins see all help requests
+        const helpRequests = await storage.getHelpRequests();
+        res.json(helpRequests);
+      } else {
+        // Users see only their own help requests
+        const helpRequests = await storage.getHelpRequestsByUser(user.claims.sub);
+        res.json(helpRequests);
+      }
     } catch (error) {
       console.error("Error fetching help requests:", error);
       res.status(500).json({ message: "Failed to fetch help requests" });
     }
   });
 
-  app.post('/api/help-requests', async (req, res) => {
+  app.post('/api/help-requests', isAuthenticated, async (req: any, res) => {
     try {
-      const helpRequest = await storage.createHelpRequest(req.body);
+      const user = req.user;
+      const helpRequestData = {
+        ...req.body,
+        userId: user.claims.sub // Link to authenticated user
+      };
+      
+      const helpRequest = await storage.createHelpRequest(helpRequestData);
       
       // Broadcast help request to admin clients
       broadcast('new_help_request', helpRequest);
@@ -107,7 +137,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch('/api/help-requests/:id', async (req, res) => {
+  app.patch('/api/help-requests/:id', requireAdmin, async (req, res) => {
     try {
       const { status, assignedTo } = req.body;
       await storage.updateHelpRequestStatus(req.params.id, status, assignedTo);
@@ -128,7 +158,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Add status update route for help requests
-  app.patch('/api/help-requests/:id/status', async (req, res) => {
+  app.patch('/api/help-requests/:id/status', requireAdmin, async (req, res) => {
     try {
       const { status } = req.body;
       await storage.updateHelpRequestStatus(req.params.id, status);
@@ -144,6 +174,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating help request status:", error);
       res.status(500).json({ message: "Failed to update help request status" });
+    }
+  });
+
+  // Message routes
+  app.get('/api/messages', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = req.user;
+      const messages = await storage.getMessages(user.claims.sub);
+      res.json(messages);
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+      res.status(500).json({ message: "Failed to fetch messages" });
+    }
+  });
+
+  app.post('/api/messages', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = req.user;
+      const messageData = {
+        ...req.body,
+        fromUserId: user.claims.sub
+      };
+      
+      const message = await storage.createMessage(messageData);
+      
+      // Broadcast message to recipient
+      broadcast('new_message', message);
+      
+      res.json(message);
+    } catch (error) {
+      console.error("Error creating message:", error);
+      res.status(500).json({ message: "Failed to create message" });
+    }
+  });
+
+  app.patch('/api/messages/:id/read', isAuthenticated, async (req: any, res) => {
+    try {
+      await storage.markMessageAsRead(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error marking message as read:", error);
+      res.status(500).json({ message: "Failed to mark message as read" });
+    }
+  });
+
+  app.get('/api/messages/unread-count', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = req.user;
+      const count = await storage.getUnreadMessageCount(user.claims.sub);
+      res.json({ count });
+    } catch (error) {
+      console.error("Error fetching unread message count:", error);
+      res.status(500).json({ message: "Failed to fetch unread message count" });
+    }
+  });
+
+  app.get('/api/broadcast-messages', async (req, res) => {
+    try {
+      const messages = await storage.getBroadcastMessages();
+      res.json(messages);
+    } catch (error) {
+      console.error("Error fetching broadcast messages:", error);
+      res.status(500).json({ message: "Failed to fetch broadcast messages" });
     }
   });
 

@@ -9,6 +9,8 @@ import {
   lostPersons,
   notifications,
   helpRequests,
+  messages,
+  messageAttachments,
   type User,
   type UpsertUser,
   type Source,
@@ -20,6 +22,8 @@ import {
   type LostPerson,
   type Notification,
   type HelpRequest,
+  type Message,
+  type MessageAttachment,
   type InsertSource,
   type InsertFrame,
   type InsertAnalysis,
@@ -29,6 +33,8 @@ import {
   type InsertLostPerson,
   type InsertNotification,
   type InsertHelpRequest,
+  type InsertMessage,
+  type InsertMessageAttachment,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gte, sql } from "drizzle-orm";
@@ -80,7 +86,16 @@ export interface IStorage {
   // Help request operations
   createHelpRequest(helpRequest: InsertHelpRequest): Promise<HelpRequest>;
   getHelpRequests(): Promise<HelpRequest[]>;
+  getHelpRequestsByUser(userId: string): Promise<HelpRequest[]>;
   updateHelpRequestStatus(id: string, status: string, assignedTo?: string): Promise<void>;
+  
+  // Message operations
+  createMessage(message: InsertMessage): Promise<Message>;
+  getMessages(userId: string): Promise<Message[]>;
+  getMessagesBetweenUsers(fromUserId: string, toUserId: string): Promise<Message[]>;
+  markMessageAsRead(messageId: string): Promise<void>;
+  getUnreadMessageCount(userId: string): Promise<number>;
+  getBroadcastMessages(): Promise<Message[]>;
   
   // Analytics
   getCrowdStats(): Promise<{
@@ -268,6 +283,12 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(helpRequests.createdAt));
   }
 
+  async getHelpRequestsByUser(userId: string): Promise<HelpRequest[]> {
+    return await db.select().from(helpRequests)
+      .where(eq(helpRequests.userId, userId))
+      .orderBy(desc(helpRequests.createdAt));
+  }
+
   async updateHelpRequestStatus(id: string, status: string, assignedTo?: string): Promise<void> {
     const updateData: any = { status };
     if (assignedTo) {
@@ -280,6 +301,59 @@ export class DatabaseStorage implements IStorage {
     await db.update(helpRequests)
       .set(updateData)
       .where(eq(helpRequests.id, id));
+  }
+
+  // Message operations
+  async createMessage(message: InsertMessage): Promise<Message> {
+    const [newMessage] = await db.insert(messages).values(message).returning();
+    return newMessage;
+  }
+
+  async getMessages(userId: string): Promise<Message[]> {
+    return await db.select().from(messages)
+      .where(
+        and(
+          eq(messages.toUserId, userId),
+          eq(messages.messageType, "direct")
+        )
+      )
+      .orderBy(desc(messages.createdAt));
+  }
+
+  async getMessagesBetweenUsers(fromUserId: string, toUserId: string): Promise<Message[]> {
+    return await db.select().from(messages)
+      .where(
+        and(
+          eq(messages.fromUserId, fromUserId),
+          eq(messages.toUserId, toUserId)
+        )
+      )
+      .orderBy(desc(messages.createdAt));
+  }
+
+  async markMessageAsRead(messageId: string): Promise<void> {
+    await db.update(messages)
+      .set({ isRead: true, readAt: new Date() })
+      .where(eq(messages.id, messageId));
+  }
+
+  async getUnreadMessageCount(userId: string): Promise<number> {
+    const result = await db.select({ count: sql<number>`count(*)` })
+      .from(messages)
+      .where(
+        and(
+          eq(messages.toUserId, userId),
+          eq(messages.isRead, false)
+        )
+      );
+    return result[0]?.count || 0;
+  }
+
+  async getBroadcastMessages(): Promise<Message[]> {
+    return await db.select().from(messages)
+      .where(eq(messages.messageType, "broadcast"))
+      .orderBy(desc(messages.createdAt))
+      .limit(20);
   }
 
   // Analytics
