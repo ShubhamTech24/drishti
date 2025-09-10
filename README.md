@@ -1,5 +1,3 @@
-Here’s a simple README.md file you can use:
-
 # Project Setup Guide
 
 Follow the steps below to set up and run the project:
