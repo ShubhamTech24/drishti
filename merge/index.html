@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Drishti - Crowd Monitoring</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: #fdf8f6;
+    }
+    .navbar {
+      background: #fff;
+      padding: 15px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .navbar .brand {
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+    }
+    .navbar .actions button {
+      margin-left: 10px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .navbar .actions .admin {
+      background: #eee;
+    }
+    .navbar .actions .dashboard {
+      background: #f5f5f5;
+    }
+    .navbar .actions .logout {
+      background: #c0392b;
+      color: #fff;
+    }
+    .container {
+      padding: 30px 60px;
+    }
+    h2 {
+      color: #333;
+      margin-bottom: 8px;
+    }
+    p.subtitle {
+      color: #777;
+      margin-bottom: 20px;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: transform 0.2s ease;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+    }
+    .card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      filter: brightness(0.8);
+    }
+    .card .content {
+      padding: 15px;
+    }
+    .card h3 {
+      margin: 0;
+      font-size: 18px;
+      color: #333;
+    }
+    .card button {
+      margin-top: 10px;
+      background: #e67e22;
+      color: white;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    .card button:hover {
+      background: #d35400;
+    }
+    .result {
+      margin-top: 30px;
+      font-size: 18px;
+      font-weight: bold;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <div class="navbar">
+    <div class="brand">📡 Drishti - User Dashboard</div>
+    
+  </div>
+
+  <!-- Main Section -->
+  <div class="container">
+    <h2>👁 Live Crowd Monitoring with AI Analysis</h2>
+    <p class="subtitle">Real-time people counting using AI-powered crowd analysis on live video feeds</p>
+
+    <div class="cards">
+      <!-- Card 1 -->
+      <div class="card">
+        
+        <div class="content">
+          <h3>Ram Ghat - Main Bathing Area</h3>
+          <form method="post" enctype="multipart/form-data">
+            <input type="file" name="video" required>
+            <button type="submit">Start Monitoring</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="card">
+        <div class="content">
+          <h3>Mahakal Temple - Temple Complex</h3>
+          <form method="post" enctype="multipart/form-data">
+            <input type="file" name="video" required>
+            <button type="submit">Start Monitoring</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="card">
+        <div class="content">
+          <h3>Kumbh Mela - Camp Area</h3>
+          <form method="post" enctype="multipart/form-data">
+            <input type="file" name="video" required>
+            <button type="submit">Start Monitoring</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <p class="result">{{result}}</p>
+  </div>
+</body>
+</html>
