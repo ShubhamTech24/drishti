@@ -28,3 +28,10 @@ Start the application with:
 5.Open the application
 After running the above command, a URL will be generated in the terminal (usually http://localhost:3000 or similar).
 Open that URL in your browser to access the application.
+
+
+
+## For Crowd Density AI
+1. Open Merge Folder Than Run the following command:
+
+        python app.py
